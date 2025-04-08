@@ -13,25 +13,38 @@ const testCollection = db.collection('Test');
 
 
 // Đăng ký người dùng mới 
-// router.post('/register', async (req, res) => {
-//   const { userName, password } = req.body;
+router.post('/register', async (req, res) => {
+  const { role, userName, passWord, email, phone, displayName, age } = req.body;
   
-//   try {
-//     // Kiểm tra xem người dùng đã tồn tại chưa
-//     let user = await User.findOne({ userName });
-//     if (user) {
-//       return res.status(400).json({ msg: 'Người dùng đã tồn tại' });
-//     }
+  try {
+    // Kiểm tra xem người dùng đã tồn tại chưa
+    const user = await testCollection.findOne({ userName: userName });
+    if (user) {
+      return res.status(400).json({msg: 'Người dùng đã tồn tại'});
+    }
 
-//     // Tạo người dùng mới
-//     user = new User({ userName, password });
-//     await user.save();
+    else{
+      const newUser = {
+        role,
+        userName,
+        passWord,
+        email,
+        phone,
+        displayName,
+        age,
+        createdAt: new Date()
+      };
 
-//     res.status(201).json({ msg: 'Đăng ký thành công' });
-//   } catch (error) {
-//     res.status(500).json({ msg: 'Lỗi server', error });
-//   }
-// });
+      // Thêm vào MongoDB
+      const result = await testCollection.insertOne(newUser);
+
+      res.status(201).json({ msg: 'Đăng ký thành công!!!', userId: result.insertedId });
+    }
+
+  } catch (error) {
+    res.status(500).json({ msg: 'Lỗi server', error });
+  }
+});
 
 // Đăng nhập người dùng
 router.post('/login', async (req, res) => {
