@@ -25,6 +25,9 @@ router.post('/newUser', async (req, res) => {
   const { email, passWord, phone, displayName, age, role, status} = req.body;
   
   try {
+    if(!email || !passWord || !phone || !displayName || !age) {
+      throw new Error("MISSINGDATA"); // Kiểm tra xem có thiếu thông tin không
+    }
     // Kiểm tra xem người dùng đã tồn tại chưa
     // const existingUser = await userCollection.find({ email: email }).toArray();
     // if (existingUser.length > 0) {
@@ -66,6 +69,9 @@ router.post('/newUser', async (req, res) => {
   } catch (error) {
     if (error.code === 11000) {
       return res.status(400).json({ msg: 'ERROR!!!Người dùng đã tồn tại!!!' });
+    }
+    if (error.message === "MISSINGDATA") {
+      return res.status(400).json({ msg: 'ERROR!!!Thiếu thông tin đăng ký!!!' });
     }
     res.status(500).json({ msg: 'ERROR!!!Lỗi server jj đó ở khúc đăng kí áá!!!', error });
   }
