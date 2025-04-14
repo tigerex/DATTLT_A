@@ -14,12 +14,13 @@ class AuthService {
     return response;
   }
 
-  static Future<http.Response> register(String email, String password) async {
+  static Future<http.Response> register(String email, String password, String phone, String displayName, int age) async {
     final url = Uri.parse('$baseUrl/register/newUser');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'passWord': password}),
+      body: jsonEncode({'email': email, 'passWord': password,
+                        'phone': phone, 'displayName': displayName, 'age': age}),
     );
     return response;
   }
