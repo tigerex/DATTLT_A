@@ -7,6 +7,8 @@ const { MongoClient } = require('mongodb');
 const User = require('./models/User');
 const cookieParser = require('cookie-parser');
 
+const cors = require('cors');
+
 const PORT = process.env.PORT || 5000; // Port cho server
 
 const app = express();
@@ -20,6 +22,9 @@ const db = client.db(dbName); // Kết nối đến cơ sở dữ liệu
 const userCollection = db.collection(collectionName); // Tạo collection để lưu trữ người dùng
 
 // Cấu hình middleware
+app.use(cors({
+  credentials: true
+}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 

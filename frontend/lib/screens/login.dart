@@ -2,9 +2,52 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../widgets/custom_textfield.dart';
 import '../widgets/round_icon_button.dart';
+import '../services/auth_service.dart';
+import '../screens/home.dart';
 
-class LoginScreen extends StatelessWidget {
+
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginScreen> {
+
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool isLoading = false;
+  String errorText = '';
+
+  void handleLogin() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
+    setState(() {
+      isLoading = true;
+      errorText = '';
+    });
+
+    final response = await AuthService.login(email, password);
+    if (response.statusCode == 200) {
+      // Đăng nhập thành công
+      print('Login OK: ${response.body}');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+
+    } else {
+      setState(() {
+        errorText = 'Sai email hoặc mật khẩu';
+      });
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +66,7 @@ class LoginScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
         child: Center(
           child: SingleChildScrollView(
             child: Container(
@@ -44,18 +87,24 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: emailController,
                     label: 'Email',
                     icon: Icons.email,
                   ),
                   const SizedBox(height: 16),
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: passwordController,
                     label: 'Password',
                     icon: Icons.lock,
                     obscureText: true,
                   ),
                   const SizedBox(height: 24),
-                  const RoundIconButton(), // Nút tròn màu tím với icon mũi tên
+                  
+                  RoundIconButton(
+                    onPressed: handleLogin,
+                  ), // Nút tròn màu tím với icon mũi tên
+                  
                   const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -88,3 +137,4 @@ class SocialIcon extends StatelessWidget {
     );
   }
 }
+

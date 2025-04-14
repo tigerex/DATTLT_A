@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class RoundIconButton extends StatelessWidget {
-  const RoundIconButton({super.key});
+  final VoidCallback onPressed;
+
+  const RoundIconButton({required this.onPressed, super.key});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {
-        // TODO: handle login
-      },
+      onPressed: onPressed ,
       style: ElevatedButton.styleFrom(
         shape: const CircleBorder(),
         padding: const EdgeInsets.all(20),
