@@ -3,7 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../widgets/custom_textfield.dart';
 import '../widgets/round_icon_button.dart';
 import '../services/auth_service.dart';
-import '../screens/home.dart';
+import './home.dart';
+import './login.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -21,6 +22,24 @@ class _RegisterPageState extends State<RegisterScreen> {
   bool isLoading = false;
   String errorText = '';
 
+    void wrongRegister(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Ê!!!'),
+          content: const Text('Điền cho đầy đủ coi!'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Close dialog
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void handleRegister() async {
     final email = emailController.text.trim();
     final password = passwordController.text;
@@ -33,14 +52,8 @@ class _RegisterPageState extends State<RegisterScreen> {
       errorText = '';
     });
 
-    final response = await AuthService.register(
-      email,
-      password,
-      phone,
-      displayName,
-      age,
-    );
-    if (response.statusCode == 200) {
+    final response = await AuthService.register(email,password,phone,displayName,age);
+    if (response.statusCode == 201) {
       // Đăng ký thành công
       print('Register OK: ${response.body}');
       Navigator.pushReplacement(
@@ -49,7 +62,7 @@ class _RegisterPageState extends State<RegisterScreen> {
       );
     } else {
       setState(() {
-        errorText = 'Sai email hoặc mật khẩu';
+        wrongRegister(context);
       });
 
       ///Cần thay đổi chỗ này
@@ -58,6 +71,13 @@ class _RegisterPageState extends State<RegisterScreen> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  void handleBack() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
   }
 
   @override
@@ -113,28 +133,33 @@ class _RegisterPageState extends State<RegisterScreen> {
                     controller: phoneController,
                     label: 'Phone',
                     icon: Icons.phone,
-                    obscureText: true,
+                    // obscureText: true,
                   ),
                   const SizedBox(height: 11),
                   CustomTextField(
                     controller: displayNameController,
                     label: 'Display Name',
                     icon: Icons.person,
-                    obscureText: true,
+                    // obscureText: true,
                   ),
                   const SizedBox(height: 11),
                   CustomTextField(
                     controller: ageController,
                     label: 'Age',
                     icon: Icons.calendar_month,
-                    obscureText: true,
+                    // obscureText: true,
                   ),
 
                   const SizedBox(height: 24),
 
                   RoundIconButton(
                     onPressed: handleRegister,
-                  ), // Nút tròn màu tím với icon mũi tên
+                  ),// Nút tròn màu tím với icon mũi tên
+
+                  ElevatedButton(
+                    onPressed: handleBack,
+                    child: const Text("Back"),
+                  ), 
 
                   const SizedBox(height: 24),
                   Row(

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dart:convert';
 import '../widgets/custom_textfield.dart';
 import '../widgets/round_icon_button.dart';
 import '../services/auth_service.dart';
 import '../screens/home.dart';
+import 'register.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -20,6 +22,46 @@ class _LoginPageState extends State<LoginScreen> {
   bool isLoading = false;
   String errorText = '';
 
+  void wrongLogin(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Login Failed'),
+          content: const Text('Password or email is incorrect!'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Close dialog
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showLoginWelcomeDialog(BuildContext context, String userName) {
+  showDialog(
+    context: context,
+    barrierDismissible: false, // Prevent user from closing it manually
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Welcome'),
+        content: Text('Welcome back, $userName!'),
+      );
+    },
+  );
+
+  Future.delayed(const Duration(seconds: 2), () {
+    Navigator.of(context).pop(); // Close the dialog
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
+  });
+}
+
+
   void handleLogin() async {
     final email = emailController.text.trim();
     final password = passwordController.text;
@@ -32,15 +74,25 @@ class _LoginPageState extends State<LoginScreen> {
     final response = await AuthService.login(email, password);
     if (response.statusCode == 200) {
       // Đăng nhập thành công
-      print('Login OK: ${response.body}');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-      );
+      print('Login OK!');
+      final data = jsonDecode(response.body);
+      final String userName = data['user'][0]['displayName'];
+      showLoginWelcomeDialog(context, userName); // Show welcome dialog
 
-    } else {
+    } 
+
+    if (response.statusCode == 400) {
+      // Sai email hoặc mật khẩu
+      wrongLogin(context);
+    } else if (response.statusCode == 500) {
+      // Lỗi server
       setState(() {
-        errorText = 'Sai email hoặc mật khẩu';
+        errorText = 'Lỗi server, vui lòng thử lại sau!';
+      });
+    } else {
+      // Lỗi khác
+      setState(() {
+        errorText = 'Đã xảy ra lỗi, vui lòng thử lại!';
       });
     }
 
@@ -48,6 +100,14 @@ class _LoginPageState extends State<LoginScreen> {
       isLoading = false;
     });
   }
+
+  void handleRegister() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const RegisterScreen()),
+    );
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +126,8 @@ class _LoginPageState extends State<LoginScreen> {
               ],
             ),
           ),
+
+          
 
         child: Center(
           child: SingleChildScrollView(
@@ -104,7 +166,11 @@ class _LoginPageState extends State<LoginScreen> {
                   RoundIconButton(
                     onPressed: handleLogin,
                   ), // Nút tròn màu tím với icon mũi tên
-                  
+                  ElevatedButton(
+                    onPressed: handleRegister,
+            
+                    child: const Text("Register"),
+                  ),
                   const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
