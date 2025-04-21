@@ -26,14 +26,25 @@ app.use(cookieParser()); // Sử dụng cookie-parser để xử lý cookie
 
 router.get('/UserStatus', (req, res) => {
   const token = req.cookies.jwt; // Lấy token từ cookie
+  try {
   if (!token) {
-    return res.status(401).json({ msg: 'ERROR!!!Chưa đăng nhập!!!' }); // Nếu không có token, trả về lỗi
+    throw new Error ("NOFIND"); // Nếu không có token, trả về lỗi
   }
   const decoded = decodedToken(token); // Giải mã token để lấy thông tin người dùng
   if (!decoded) {
-    return res.status(401).json({ msg: 'ERROR!!!Token không hợp lệ!!!' }); // Nếu token không hợp lệ, trả về lỗi
+    throw new Error ("INCORRECTTOKEN") // Nếu token không hợp lệ, trả về lỗi
   } else {
     return res.status(200).json({ msg: 'Đã đăng nhập!!!', UserID: decoded.user }); // Nếu token hợp lệ, trả về thông tin người dùng
+  }
+
+  } catch (error) {
+    let msg = 'ERROR!!!Lỗi server jj đó ở khúc lấy thông tin người dùng á!!!';
+    let status = 400;
+
+    if (error.message === "NOFIND") msg = 'ERROR!!!chưa đăng nhập!!!'; status = 401;
+    if (error.message === "INCORRECTTOKEN") msg = 'ERROR!!!Token không hợp lệ!!!'; status = 401;
+
+    return res.status(status).json({ msg, error: error.message });
   }
 });
 
@@ -61,25 +72,35 @@ router.post('/login', async (req, res) => {
     res.status(200).json({ msg: 'Đăng nhập thành công!!!',token,user}); // Trả về thông báo thành công
 
   } catch (error) {
-    if (error.message === "MISSINGDATA") {
-      return res.status(400).json({ msg: 'ERROR!!!Sai thông tin đăng nhập!!!' });
-    } 
-    if (error.message === "NOFIND") {
-      return res.status(400).json({ msg: 'ERROR!!!Người dùng không tồn tại!!!' });
-    } 
-    if (error.message === "WRONGPASS") {
-      return res.status(400).json({ msg: 'ERROR!!!Mật khẩu không đúng!!!' });
-    } 
-    else {
-      return res.status(500).json({ msg: 'ERROR!!!Lỗi server jj đó ở khúc đăng nhập á!!!', error });
-    }
-    
+    let msg = 'ERROR!!!Lỗi server jj đó ở khúc đăng nhập á!!!';
+    let status = 400;
+
+    if (error.message === "MISSINGDATA") msg = 'ERROR!!!Thiếu thông tin đăng nhập!!!'; status = 400;
+    if (error.message === "NOFIND") msg = 'ERROR!!!Người dùng không tồn tại!!!'; status = 404;
+    if (error.message === "WRONGPASS") msg = 'ERROR!!!Mật khẩu không đúng!!!'; status = 401; 
+
+    return res.status(status).json({ msg, error: error.message });
   }
 });
 
 router.get('/logout', (req, res) => {
-  res.clearCookie('jwt'); // Xóa cookie jwt
-  res.status(200).json({ msg: 'Đăng xuất thành công!!!' }); // Trả về thông báo thành công
+  // kiem tra xem người dùng đã đăng nhập chưa
+  const token = req.cookies.jwt; // Lấy token từ cookie
+  try {
+    if (!token) {
+      throw new Error("NOFIND"); // Kieerm tra xem người dùng có tồn tại không
+    }
+    res.clearCookie('jwt'); // Xóa cookie jwt
+    res.status(200).json({ msg: 'Đăng xuất thành công!!!' }); // Trả về thông báo thành công
+
+  } catch (error) {
+    let msg = 'ERROR!!!Lỗi server jj đó ở khúc đăng xuất á!!!';
+    let status = 400;
+
+    if (error.message === "NOFIND") msg = 'ERROR!!!chưa đăng nhập!!!';
+    
+    return res.status(status).json({ msg, error: error.message });
+  }
 });
 
 router.get('/user/token/:token', async (req, res) => {
