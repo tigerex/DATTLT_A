@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login.dart';
 // import 'screens/home.dart';
-import './screens/admin_crud.dart';
+// import './screens/admin_crud.dart';
 
 import 'screens/home22.dart';
 
