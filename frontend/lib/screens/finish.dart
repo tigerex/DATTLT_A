@@ -77,7 +77,7 @@ class FinishScreen extends StatelessWidget {
               ),
               onPressed: () => Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => ChooseLevelScreen())
+                MaterialPageRoute(builder: (context) => ChooseLevelScreen(username: username,))
               ),
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),

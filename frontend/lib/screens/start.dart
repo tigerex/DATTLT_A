@@ -6,9 +6,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import './finish.dart';
 
 class StartQuizScreen extends StatefulWidget {
+  final String username;
   final List<TestQuestion> questions;
 
-  const StartQuizScreen({super.key, required this.questions});
+  const StartQuizScreen({super.key, required this.questions, required this.username});
 
   @override
   State<StartQuizScreen> createState() => _StartQuizScreenState();
@@ -48,12 +49,9 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => FinishScreen(
-            username: 'Flash',
-            score: 8,
-            total: 10,
-          )
-        )
+          builder:
+              (context) => FinishScreen(username: widget.username, score: 8, total: 10),
+        ),
       );
     }
   }

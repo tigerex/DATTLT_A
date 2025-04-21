@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginScreen> {
     Navigator.of(context).pop(); // Close the dialog
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const HomeScreen22()),
+      MaterialPageRoute(builder: (context) => HomeScreen22(username: userName,)),
     );
   });
 }

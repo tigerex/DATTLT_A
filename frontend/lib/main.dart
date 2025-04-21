@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (token != null && token.isNotEmpty) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen22()),
+        MaterialPageRoute(builder: (context) => HomeScreen22(username: 'unknown',)),  //////Username đoạn này có thể lấy từ token khum???
       );
     } else {
       Navigator.pushReplacement(

@@ -6,7 +6,9 @@ import '../services/question_service.dart';
 import './start.dart';
 
 class ChooseLevelScreen extends StatelessWidget {
-  const ChooseLevelScreen({super.key});
+  final String username;
+
+  const ChooseLevelScreen({super.key, required this.username});
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +27,8 @@ class ChooseLevelScreen extends StatelessWidget {
               height: 80,
             ),
             const SizedBox(height: 24),
-            const Text(
-              "Let's go, Flash!",
+            Text(
+              "Let's go, $username!",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -46,7 +48,7 @@ class ChooseLevelScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => StartQuizScreen(questions: questions),
+                    builder: (context) => StartQuizScreen(username: username, questions: questions),
                   ),
                 );
               },
@@ -59,7 +61,7 @@ class ChooseLevelScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => StartQuizScreen(questions: questions),
+                    builder: (context) => StartQuizScreen(username: username, questions: questions),
                   ),
                 );
               },
@@ -72,7 +74,7 @@ class ChooseLevelScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => StartQuizScreen(questions: questions),
+                    builder: (context) => StartQuizScreen(username: username, questions: questions),
                   ),
                 );
               },

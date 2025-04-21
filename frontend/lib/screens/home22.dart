@@ -5,7 +5,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import './choose_level.dart';
 
 class HomeScreen22 extends StatelessWidget {
-  const HomeScreen22({super.key});
+  final String username;
+
+  const HomeScreen22({super.key, required this.username});
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +30,8 @@ class HomeScreen22 extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Spacer(flex: 2),
-            const Text(
-              'Hi Flash',
+            Text(
+              'Hi $username',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -49,7 +51,7 @@ class HomeScreen22 extends StatelessWidget {
               text: 'Start now',
               onPressed: () => Navigator.pushReplacement(
                 context, 
-                MaterialPageRoute(builder: (context) => const ChooseLevelScreen())
+                MaterialPageRoute(builder: (context) => ChooseLevelScreen(username: username,))
                 ),
             ),
             const Spacer(flex: 2),
