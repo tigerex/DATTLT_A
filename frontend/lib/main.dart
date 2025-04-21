@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login.dart';
-import 'screens/home.dart';
+// import 'screens/home.dart';
 
 
 import 'screens/home22.dart';
@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (token != null && token.isNotEmpty) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const HomeScreen22()),
       );
     } else {
       Navigator.pushReplacement(
@@ -58,8 +58,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      // home: SplashScreen(),
-      home: HomeScreen22(),
+      home: SplashScreen(),
+      // home: HomeScreen22(),
     );
   }
 }

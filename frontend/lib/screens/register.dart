@@ -3,7 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../widgets/custom_textfield.dart';
 import '../widgets/round_icon_button.dart';
 import '../services/auth_service.dart';
-import './home.dart';
+// import './home.dart';
+
+import './home22.dart';
 import './login.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -22,7 +24,7 @@ class _RegisterPageState extends State<RegisterScreen> {
   bool isLoading = false;
   String errorText = '';
 
-    void wrongRegister(BuildContext context) {
+  void wrongRegister(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
@@ -52,13 +54,19 @@ class _RegisterPageState extends State<RegisterScreen> {
       errorText = '';
     });
 
-    final response = await AuthService.register(email,password,phone,displayName,age);
+    final response = await AuthService.register(
+      email,
+      password,
+      phone,
+      displayName,
+      age,
+    );
     if (response.statusCode == 201) {
       // Đăng ký thành công
       print('Register OK: ${response.body}');
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => HomeScreen22()),
       );
     } else {
       setState(() {
@@ -154,12 +162,12 @@ class _RegisterPageState extends State<RegisterScreen> {
 
                   RoundIconButton(
                     onPressed: handleRegister,
-                  ),// Nút tròn màu tím với icon mũi tên
+                  ), // Nút tròn màu tím với icon mũi tên
 
                   ElevatedButton(
                     onPressed: handleBack,
                     child: const Text("Back"),
-                  ), 
+                  ),
 
                   const SizedBox(height: 24),
                   Row(

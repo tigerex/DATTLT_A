@@ -1,25 +1,25 @@
 class TestQuestion {
-  final String id;
+  final String questionId;
   final String questionText;
-  final String? image;
+  // final String? image;
   final int maxTimePerQuestion;
   final List<String> options;
-  final int correctIndex;
+  final int isCorrectAnswer;
 
   TestQuestion({
-    required this.id,
+    required this.questionId,
     required this.questionText,
-    this.image,
+    // this.image,
     required this.maxTimePerQuestion,
     required this.options,
-    required this.correctIndex,
+    required this.isCorrectAnswer,
   });
 
   factory TestQuestion.fromJson(Map<String, dynamic> json) {
     return TestQuestion(
-      id: json['id'],
+      questionId: json['questionId'],
       questionText: json['questionText'],
-      image: json['image'],
+      // image: json['image'],
       maxTimePerQuestion: json['maxTimePerQuestion'],
       options: [
         json['option_a'],
@@ -27,7 +27,7 @@ class TestQuestion {
         json['option_c'],
         json['option_d'],
       ],
-      correctIndex: _convertAnswerToIndex(json['isCorrectAnswer']),
+      isCorrectAnswer: _convertAnswerToIndex(json['isCorrectAnswer']),
     );
   }
 

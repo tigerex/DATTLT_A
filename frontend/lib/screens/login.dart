@@ -4,7 +4,9 @@ import 'dart:convert';
 import '../widgets/custom_textfield.dart';
 import '../widgets/round_icon_button.dart';
 import '../services/auth_service.dart';
-import '../screens/home.dart';
+// import '../screens/home.dart';
+
+import './home22.dart';
 import 'register.dart';
 
 
@@ -56,7 +58,7 @@ class _LoginPageState extends State<LoginScreen> {
     Navigator.of(context).pop(); // Close the dialog
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
+      MaterialPageRoute(builder: (context) => const HomeScreen22()),
     );
   });
 }
