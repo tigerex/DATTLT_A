@@ -4,10 +4,10 @@ import 'dart:convert';
 import '../widgets/custom_textfield.dart';
 import '../widgets/round_icon_button.dart';
 import '../services/auth_service.dart';
-// import '../screens/home.dart';
-
-import './home22.dart';
+//import '../screens/home.dart';
 import 'register.dart';
+import './home22.dart';
+
 
 
 class LoginScreen extends StatefulWidget {
@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginScreen> {
     Navigator.of(context).pop(); // Close the dialog
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomeScreen22(username: userName,)),
+      MaterialPageRoute(builder: (context) => HomeScreen22(userName: userName,)),
     );
   });
 }

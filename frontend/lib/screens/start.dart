@@ -23,7 +23,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
   @override
   void initState() {
     super.initState();
-    remainingTime = widget.questions[currentIndex].maxTimePerQuestion;
+    remainingTime = widget.questions[currentIndex].maxTime;
     startTimer();
   }
 
@@ -42,7 +42,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
     if (currentIndex < widget.questions.length - 1) {
       setState(() {
         currentIndex++;
-        remainingTime = widget.questions[currentIndex].maxTimePerQuestion;
+        remainingTime = widget.questions[currentIndex].maxTime;
       });
       startTimer();
     } else {
@@ -50,7 +50,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
         context,
         MaterialPageRoute(
           builder:
-              (context) => FinishScreen(username: widget.username, score: 8, total: 10),
+              (context) => FinishScreen(userName: widget.username, score: 8, total: 10),
         ),
       );
     }

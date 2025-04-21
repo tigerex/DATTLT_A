@@ -4,18 +4,20 @@ const mongoose = require('mongoose');
 
 const questionSchema = new mongoose.Schema(
     {
-        questionId: { type: String, required: true, unique: true },    // ID câu hỏi (định danh duy nhất)
-        level: { type: String, required: true },                       // Cấp độ câu hỏi (easy, medium, hard)
-        questionImg: { type: String, required: false, default: null }, // câu hỏi hình ảnh
-        questionText: { type: String, required: true },                // Nội dung câu hỏi
-        option_a: { type: String, required: true },                    // Đáp án A
-        option_b: { type: String, required: true },                    // Đáp án B
-        option_c: { type: String, required: true },                    // Đáp án C
-        option_d: { type: String, required: true },                    // Đáp án D
-        isCorrectAnswer: { type: String, required: true },             // Đáp án đúng (A, B, C, D)
-        maxTimePerQuestion: { type: Number, required: true },          // Thời gian tối đa cho mỗi câu hỏi (giây)
-        createDate: { type: Date, default: Date.now },                 // Ngày tạo tài khoản
-        updatedDate: { type: Date, default: Date.now },                // Ngày cập nhật tài khoản
+        questionId: { type: String, required: true, unique: true },
+        level: { type: String, required: true }, // "easy", "medium", "hard"
+        questionImg: { type: String, default: null },
+        questionText: { type: String, required: true },
+        options: [
+            {
+                label: { type: String, enum: ['A', 'B', 'C', 'D'], required: true },
+                text: { type: String, required: true }
+            }
+        ],
+        correctAnswer: { type: String, enum: ['A', 'B', 'C', 'D'], required: true },
+        maxTime: { type: Number, required: true },
+        createDate: { type: Date, default: Date.now },
+        updatedDate: { type: Date, default: Date.now }
     },
     {
         collection: 'Question'  // Tên collection trong MongoDB

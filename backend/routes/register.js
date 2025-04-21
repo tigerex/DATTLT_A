@@ -74,13 +74,11 @@ router.post('/newUser', async (req, res) => {
     // }
 
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(400).json({ msg: 'ERROR!!!Người dùng đã tồn tại!!!' });
-    }
-    if (error.message === "MISSINGDATA") {
-      return res.status(400).json({ msg: 'ERROR!!!Thiếu thông tin đăng ký!!!' });
-    }
-    res.status(500).json({ msg: 'ERROR!!!Lỗi server jj đó ở khúc đăng kí áá!!!', error });
+    let msg = 'ERROR!!!Lỗi server jj đó ở khúc đăng kí áá!!!';
+    if (error.code === 11000) msg = 'ERROR!!!Người dùng đã tồn tại!!!'; // Lỗi trùng lặp email
+    if (error.message === "MISSINGDATA") msg = 'ERROR!!!Thiếu thông tin đăng ký!!!'; // Thiếu thông tin đăng ký
+    
+    return res.status(400).json({ msg, error: error.message });
   }
 });
 

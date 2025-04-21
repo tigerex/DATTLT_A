@@ -4,11 +4,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import './choose_level.dart';
 
 class FinishScreen extends StatelessWidget {
-  final String username;
+  final String userName;
   final int score;
   final int total;
 
-  const FinishScreen({super.key, required this.username, required this.score, required this.total});
+  const FinishScreen({super.key, required this.userName, required this.score, required this.total});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class FinishScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Great job, $username!',
+              'Great job, $userName!',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 22,
@@ -46,7 +46,7 @@ class FinishScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              '🌟 You scored: $score out of $total',
+              '🌟 You scored: $score out of $total', // Cái này tính sao dị :)))?
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.white,
@@ -77,7 +77,7 @@ class FinishScreen extends StatelessWidget {
               ),
               onPressed: () => Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => ChooseLevelScreen(username: username,))
+                MaterialPageRoute(builder: (context) => ChooseLevelScreen(username: userName,))
               ),
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
