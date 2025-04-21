@@ -1,0 +1,167 @@
+// lib/screens/start.dart
+import 'dart:async';
+import 'package:flutter/material.dart';
+import '../models/test_question.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import './finish.dart';
+
+class StartQuizScreen extends StatefulWidget {
+  final List<TestQuestion> questions;
+
+  const StartQuizScreen({super.key, required this.questions});
+
+  @override
+  State<StartQuizScreen> createState() => _StartQuizScreenState();
+}
+
+class _StartQuizScreenState extends State<StartQuizScreen> {
+  int currentIndex = 0;
+  int remainingTime = 0;
+  late Timer timer;
+
+  @override
+  void initState() {
+    super.initState();
+    remainingTime = widget.questions[currentIndex].maxTimePerQuestion;
+    startTimer();
+  }
+
+  void startTimer() {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (remainingTime > 0) {
+        setState(() => remainingTime--);
+      } else {
+        goToNextQuestion();
+      }
+    });
+  }
+
+  void goToNextQuestion() {
+    timer.cancel();
+    if (currentIndex < widget.questions.length - 1) {
+      setState(() {
+        currentIndex++;
+        remainingTime = widget.questions[currentIndex].maxTimePerQuestion;
+      });
+      startTimer();
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FinishScreen(
+            username: 'Flash',
+            score: 8,
+            total: 10,
+          )
+        )
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final question = widget.questions[currentIndex];
+    double progress = (currentIndex + 1) / widget.questions.length;
+
+    return Scaffold(
+      body: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(color: Color(0xFFFFFAFA)),
+        child: Column(
+          // crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Quiz Time',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF8E3DFF),
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.timer, color: Color(0xFF8E3DFF)),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${remainingTime ~/ 60}:${(remainingTime % 60).toString().padLeft(2, '0')}',
+                      style: const TextStyle(color: Color(0xFF8E3DFF)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.grey[300],
+              color: Colors.deepPurple,
+            ),
+            const SizedBox(height: 32),
+
+            Text(
+              question.questionText,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 20),
+            ...List.generate(question.options.length, (index) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7F5CFF),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                  ),
+                  onPressed: () => goToNextQuestion(), // tạm thời
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12.0,
+                        horizontal: 12,
+                      ),
+                      child: Text(
+                        '${String.fromCharCode(97 + index)}. ${question.options[index]}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_forward, color: Colors.deepPurple),
+                onPressed: goToNextQuestion,
+              ),
+            ),
+
+            const Spacer(),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: SvgPicture.asset(
+                'lib/assets/images/monsterQuestion.svg',
+                height: 80,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
