@@ -8,7 +8,9 @@ plugins {
 android {
     namespace = "com.example.frontend"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973" // Vì lý do phải tương thích version với một số package như:
+    //flutter_secure_storage, path_provider_android, và shared_preferences_android đang bắt buộc dùng Android NDK >= 27.0.12077973
+    //downgrade package có khả năng cao gây lỗi và bị thiếu tính năng, không tương thích với flutter mới
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

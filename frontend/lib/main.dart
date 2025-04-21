@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/register.dart';
 import 'screens/login.dart';
-import 'screens/home.dart';
+// import 'screens/home.dart';
+// import './screens/admin_crud.dart';
+
+import 'screens/home22.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (token != null && token.isNotEmpty) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => HomeScreen22(username: 'unknown',)),  //////Username đoạn này có thể lấy từ token khum???
       );
     } else {
       Navigator.pushReplacement(
@@ -57,6 +59,8 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
+      // home: HomeScreen22(),
+      // home: AdminCrudScreen(),
     );
   }
 }
