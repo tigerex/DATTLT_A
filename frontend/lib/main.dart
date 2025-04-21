@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login.dart';
 // import 'screens/home.dart';
-
+import './screens/admin_crud.dart';
 
 import 'screens/home22.dart';
 
@@ -60,6 +60,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
       // home: HomeScreen22(),
+      // home: AdminCrudScreen(),
     );
   }
 }
