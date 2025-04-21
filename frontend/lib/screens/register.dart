@@ -42,7 +42,7 @@ class _RegisterPageState extends State<RegisterScreen> {
 
   void handleRegister() async {
     final email = emailController.text.trim();
-    final password = passwordController.text;
+    final password = passwordController.text.trim();
     final phone = phoneController.text.trim();
     final displayName = displayNameController.text.trim();
     int age = int.tryParse(ageController.text) ?? 0;

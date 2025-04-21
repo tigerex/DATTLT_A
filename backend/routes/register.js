@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const router = express.Router();
 const { MongoClient } = require('mongodb');
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const dbName = "User"; // Thay đổi tên cơ sở dữ liệu nếu cần
 const collectionName = "User"; // Tên collection trong MongoDB
@@ -14,6 +16,9 @@ const url = "mongodb+srv://adminM:"+accessPassword+"@usertest.1opu14d.mongodb.ne
 const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true }); // Kết nối MongoDB
 const db = client.db(dbName); // Kết nối đến cơ sở dữ liệu
 const userCollection = db.collection(collectionName); // Tạo collection để lưu trữ người dùng
+
+const maxAge = 3 * 24 * 60 * 60; // Thời gian hết hạn token (3 ngày)
+const ACCESS_SECRET_TOKEN = "Lola"; // Mã bí mật để mã hóa token (nên thay đổi trong thực tế)
 
 async function hashPassword(password) {
   const salt = await bcrypt.genSalt(); // Tạo muối để mã hóa mật khẩu
@@ -62,7 +67,9 @@ router.post('/newUser', async (req, res) => {
         status: status || 'active', // Nếu không có trạng thái, mặc định là 'active'
       });
       const result = await userCollection.insertOne(newUser); // Lưu người dùng mới vào MongoDB
- 
+      console.log("result:", result);
+      const token = generateAccessToken(result[0]._id); // Tạo token cho người dùng
+      res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 }); // Ghi cookie vào trình duyệt
       res.status(201).json({ msg: 'Đăng ký thành công!!!', user: result});
     // }
 
@@ -76,4 +83,12 @@ router.post('/newUser', async (req, res) => {
     res.status(500).json({ msg: 'ERROR!!!Lỗi server jj đó ở khúc đăng kí áá!!!', error });
   }
 });
-  module.exports = router;
+
+function generateAccessToken(user) {
+  // console.log("user:", user);
+  // console.log("Key:", ACCESS_SECRET_TOKEN);
+  // console.log("maxAge:", maxAge);
+  return jwt.sign({user}, ACCESS_SECRET_TOKEN, { expiresIn: maxAge});
+}
+
+module.exports = router;
