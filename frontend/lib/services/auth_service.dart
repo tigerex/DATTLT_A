@@ -2,18 +2,18 @@ import 'dart:convert'; // Thư viện để chuyển đổi JSON
 import 'package:http/http.dart' as http; // Thư viện để gửi HTTP request
 import 'package:shared_preferences/shared_preferences.dart'; // Thư viện để lưu trữ dữ liệu cục bộ
 // import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Thư viện để lưu trữ dữ liệu bảo mật
- 
 
 class AuthService {
-
   // Địa chỉ server của bạn
   // Thay thế 'yourServerIp' bằng địa chỉ IP hoặc tên miền của server
-  static String yourServerIp = '192.168.2.53'; // Thay thế bằng địa chỉ IP
+  static String yourServerIp = '10.106.16.81'; // Thay thế bằng địa chỉ IP
   static String baseUrl = 'http://${yourServerIp}:5000/api';
 
-  static Future <http.Response> getUserInfo() async {
+  static Future<http.Response> getUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('user_token'); // Lấy token từ SharedPreferences
+    String? token = prefs.getString(
+      'user_token',
+    ); // Lấy token từ SharedPreferences
 
     final url = Uri.parse('$baseUrl/auth/user/token/$token');
     print("url: $url"); // UNFINISHED
@@ -51,9 +51,6 @@ class AuthService {
             Token: $token
             ''');
 
-
-
-
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_token', token);
       print('Token saved!');
@@ -61,16 +58,24 @@ class AuthService {
     return response;
   }
 
-  static Future<http.Response> register(String email, String password, String phone, String displayName, int age) async {
+  static Future<http.Response> register(
+    String email,
+    String password,
+    String phone,
+    String displayName,
+    int age,
+  ) async {
     final url = Uri.parse('$baseUrl/register/newUser');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 
-                        'passWord': password,
-                        'phone': phone, 
-                        'displayName': displayName, 
-                        'age': age}),
+      body: jsonEncode({
+        'email': email,
+        'passWord': password,
+        'phone': phone,
+        'displayName': displayName,
+        'age': age,
+      }),
     );
     print(response.body);
     return response;
