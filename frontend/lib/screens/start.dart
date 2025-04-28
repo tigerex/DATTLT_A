@@ -32,6 +32,9 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
   void initState() {
     super.initState();
 
+    // Lý do khai báo List answers như này là để cho trường hợp
+    // user bỏ qua/không chọn answer cho câu hỏi nào đó
+    // Từng answer trong list sẽ tương ứng với List questions
     answers = List.generate(
       widget.questions.length,
       (index) => Answer(
@@ -40,10 +43,13 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
       ),
     );
 
-    remainingTime = widget.questions[0].maxTime * 10;
+    remainingTime = widget.questions[0].maxTime * 10; // Time tổng của bài test
     startTimer();
   }
 
+  // Hàm đếm thời gian tổng bài test
+  // Nếu hết giờ mà user chưa chủ động finish bài
+  // thì sẽ dừng bài test và gọi calculateTest
   void startTimer() {
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (remainingTime > 0) {
@@ -54,6 +60,8 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
     });
   }
 
+  // Hàm để chuyển câu hỏi tiếp theo
+  // Nếu là câu cuối thì sẽ kết thúc bài test và gọi calculateTest
   void goToNextQuestion() {
     if (currentIndex < widget.questions.length - 1) {
       setState(() {
@@ -65,6 +73,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
     }
   }
 
+  // Hàm để quay lại các câu hỏi trước
   void goToBack() {
     if (currentIndex > 0) {
       setState(() {
@@ -73,7 +82,8 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
     }
   }
 
-  // Nếu bài làm có nút quay lại thì phải reset result. Không là result sẽ bị cộng dồn
+  // Hàm này được gọi khi người dùng đã hoàn thành bài test
+  // Được dùng để tính điểm bài test và chuyển sang trang Finish
   void calculateTest() {
     for (int i = 0; i < widget.questions.length; i++) {
       if (answers[i].selectedOptionIndex ==
@@ -97,6 +107,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
     );
   }
 
+  //Hàm để lưu answer của người dùng cho mỗi câu hỏi
   void selectAnswer(int selectedIndex) {
     //selectedIndex là option người dùng chọn cho câu hỏi nào đó
     setState(() {
@@ -161,7 +172,10 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 20),
+
+            // Đoạn này bắt đầu liệt kê các option của một câu hỏi với index đi từ 0-3
             ...List.generate(question.options.length, (index) {
+              //Biến này để tô đậm option mà người dùng chọn
               final isSelected =
                   answers[currentIndex].selectedOptionIndex == index;
 
@@ -169,8 +183,10 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                    // Nếu isSelected là true thì option sẽ có background màu đậm hơn các option còn lại
                     backgroundColor:
                         isSelected ? Color(0xFF493D79) : Color(0xFF7F5CFF),
+
                     foregroundColor: Color(0xFFFFFAFA),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(32),
@@ -179,7 +195,8 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                   onPressed:
                       () => selectAnswer(
                         index,
-                      ), // Xử lý tính điểm bài kiểm tra (Chọn câu trả lời)
+                      ), // Gọi hàm để lưu answer của người dùng theo thứ tự tương ứng với question
+
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
@@ -203,8 +220,9 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                 Align(
                   alignment: Alignment.bottomLeft,
                   child: Text(
-                    '${(currentIndex + 1).toString()}/10',
+                    '${(currentIndex + 1).toString()}/10', // Này là để hiển thị số thứ tự câu hỏi đang làm
                     style: const TextStyle(
+                      // Ví dụ đang làm câu 2 trong tổng số 10 câu -> 2/10
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF121212),
@@ -221,7 +239,8 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                           Icons.arrow_back,
                           color: Colors.deepPurple,
                         ),
-                        onPressed: goToBack,
+                        onPressed:
+                            goToBack, //Mũi tên để lui lại mấy câu hỏi trước
                       ),
                       const SizedBox(width: 10),
                       IconButton(
@@ -229,7 +248,8 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                           Icons.arrow_forward,
                           color: Colors.deepPurple,
                         ),
-                        onPressed: goToNextQuestion,
+                        onPressed:
+                            goToNextQuestion, //Mũi tên để đi tới câu hỏi tiếp
                       ),
                     ],
                   ),

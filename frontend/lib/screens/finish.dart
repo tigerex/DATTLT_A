@@ -22,6 +22,7 @@ class FinishScreen extends StatelessWidget {
     required this.questions,
   });
 
+  //Truyền biến cho widget QuestionDetailDialog để hiển thị chi tiết answer
   void showQuestionDetail(BuildContext context, TestQuestion question, Answer userAnswer) {
   showDialog(
     context: context,
@@ -69,7 +70,7 @@ class FinishScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'You scored: $score out of $total', // Cái này tính sao dị :)))?
+              'You scored: $score out of $total', // Bên start giải thích cách tính. Hàm calculateTest
               style: const TextStyle(
                 fontSize: 16,
                 color: Color(0xFFFFFAFA),
@@ -78,10 +79,11 @@ class FinishScreen extends StatelessWidget {
             ),
             // const SizedBox(height: 15),
 
+            //Từ chỗ này in 10 answer của user, bấm vào sẽ coi được chi tiết
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 👈 chỉnh margin ngoài
               child: GridView.count(
-                crossAxisCount: 4, // 👉 5 ô mỗi hàng
+                crossAxisCount: 4, // 👉 4 ô answer mỗi hàng
                 mainAxisSpacing: 10, // 👈 khoảng cách giữa các hàng
                 crossAxisSpacing: 2, // 👈 khoảng cách giữa các cột
                 childAspectRatio: 2.0,
@@ -89,6 +91,8 @@ class FinishScreen extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 children: List.generate(answers.length, (index) {
               
+                  //Để check đúng sai, in ✅ nếu đúng và ❌ nếu sai hoặc không chọn option
+                  //Biến được sử dụng ở line 123
                   final bool isCorrect =
                       (answers[index].selectedOptionIndex ==
                           questions[index].correctAnswerIndex);
@@ -104,6 +108,9 @@ class FinishScreen extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                       ),
+
+                      //User bấm chọn câu nào đó trong 10 câu để coi chi tiết
+                      //Gọi hàm hiển thị chi tiết câu trả lời
                       onPressed: () => showQuestionDetail(context, questions[index], answers[index]),
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
@@ -111,11 +118,15 @@ class FinishScreen extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
+
+                            //Số thứ tự của từng câu
                             Text(
                               (index + 1).toString(),
                               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(width: 3),
+
+                            //icon thể hiện là câu đó user làm đúng hay sai
                             Icon(
                               isCorrect ? Icons.check_circle : Icons.cancel,
                               color: isCorrect ? Colors.green : Colors.red,
