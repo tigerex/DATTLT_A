@@ -3,9 +3,12 @@ import 'package:http/http.dart' as http;
 import '../models/test_question.dart';
 
 Future<List<TestQuestion>> fetchQuestions(String level) async {
+
+  final String yourServerIp = '192.168.56.1'; // Thay thế bằng địa chỉ IP
+  final String baseUrl = 'http://$yourServerIp:5000/api'; 
+
   final response = await http.get(
-    // Uri.parse('http://localhost/api/all'), // Này là hồi nãy tui test coi data thực kéo lên ổn không
-    Uri.parse('http://192.168.0.105:5000/api/question/random/$level'),
+    Uri.parse('$baseUrl/question/random/$level'),
   );
 
   if (response.statusCode == 200) {

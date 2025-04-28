@@ -127,6 +127,23 @@ class ChooseLevelScreen extends StatelessWidget {
                 );
               },
             ),
+            const SizedBox(height: 16),
+            StartButton(
+              text: 'Image Only',
+              onPressed: () async {
+                final questions = await fetchQuestions('imgonly');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => StartQuizScreen(
+                          username: username,
+                          questions: questions,
+                        ),
+                  ),
+                );
+              },
+            ),
             const Spacer(),
           ],
         ),
