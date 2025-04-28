@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login.dart';
 // import 'screens/home.dart';
 // import './screens/admin_crud.dart';
+// import './screens/finish.dart';
 
 import 'screens/home22.dart';
 import 'services/auth_service.dart';
@@ -95,7 +96,6 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
-      // home: HomeScreen22(),
       // home: AdminCrudScreen(),
     );
   }
