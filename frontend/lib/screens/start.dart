@@ -48,8 +48,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (remainingTime > 0) {
         setState(() => remainingTime--);
-      }
-      else{
+      } else {
         calculateTest();
       }
     });
@@ -66,11 +65,19 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
     }
   }
 
+  void goToBack() {
+    if (currentIndex > 0) {
+      setState(() {
+        currentIndex--;
+      });
+    }
+  }
+
   // Nếu bài làm có nút quay lại thì phải reset result. Không là result sẽ bị cộng dồn
   void calculateTest() {
-    
     for (int i = 0; i < widget.questions.length; i++) {
-      if (answers[i].selectedOptionIndex == widget.questions[i].correctAnswerIndex) {
+      if (answers[i].selectedOptionIndex ==
+          widget.questions[i].correctAnswerIndex) {
         score++;
       }
     }
@@ -90,7 +97,8 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
     );
   }
 
-  void selectAnswer(int selectedIndex) {  //selectedIndex là option người dùng chọn cho câu hỏi nào đó
+  void selectAnswer(int selectedIndex) {
+    //selectedIndex là option người dùng chọn cho câu hỏi nào đó
     setState(() {
       answers[currentIndex].selectedOptionIndex = selectedIndex;
     });
@@ -154,13 +162,15 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
             ),
             const SizedBox(height: 20),
             ...List.generate(question.options.length, (index) {
-              final isSelected = answers[currentIndex].selectedOptionIndex == index;
+              final isSelected =
+                  answers[currentIndex].selectedOptionIndex == index;
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isSelected ? Color(0xFF493D79) : Color(0xFF7F5CFF),
+                    backgroundColor:
+                        isSelected ? Color(0xFF493D79) : Color(0xFF7F5CFF),
                     foregroundColor: Color(0xFFFFFAFA),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(32),
@@ -186,12 +196,45 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                 ),
               );
             }),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_forward, color: Colors.deepPurple),
-                onPressed: goToNextQuestion,
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    '${(currentIndex + 1).toString()}/10',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF121212),
+                    ),
+                  ),
+                ),
+
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.deepPurple,
+                        ),
+                        onPressed: goToBack,
+                      ),
+                      const SizedBox(width: 10),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.deepPurple,
+                        ),
+                        onPressed: goToNextQuestion,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
 
             const Spacer(),

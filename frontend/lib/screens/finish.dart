@@ -50,7 +50,7 @@ class FinishScreen extends StatelessWidget {
           children: [
             SvgPicture.asset(
               'lib/assets/images/monsterCongrats.svg',
-              height: 200,
+              height: 150,
             ),
             const SizedBox(height: 10),
             Text(
@@ -64,61 +64,70 @@ class FinishScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Text(
-              "You've completed the test. 🎉",
+              "🌟 You've completed the test. 🎉",
               style: TextStyle(fontSize: 14, color: Colors.white60),
             ),
             const SizedBox(height: 24),
             Text(
-              '🌟 You scored: $score out of $total', // Cái này tính sao dị :)))?
+              'You scored: $score out of $total', // Cái này tính sao dị :)))?
               style: const TextStyle(
                 fontSize: 16,
                 color: Color(0xFFFFFAFA),
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 24),
+            // const SizedBox(height: 15),
 
-            GridView.count(
-              crossAxisCount: 5, // 👉 5 ô mỗi hàng
-              childAspectRatio: 2.0,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: List.generate(answers.length, (index) {
-
-                final bool isCorrect =
-                    (answers[index].selectedOptionIndex ==
-                        questions[index].correctAnswerIndex);
-
-                return Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFFFAFA),
-                      foregroundColor: Color(0xFF121212),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 👈 chỉnh margin ngoài
+              child: GridView.count(
+                crossAxisCount: 4, // 👉 5 ô mỗi hàng
+                mainAxisSpacing: 10, // 👈 khoảng cách giữa các hàng
+                crossAxisSpacing: 2, // 👈 khoảng cách giữa các cột
+                childAspectRatio: 2.0,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                children: List.generate(answers.length, (index) {
+              
+                  final bool isCorrect =
+                      (answers[index].selectedOptionIndex ==
+                          questions[index].correctAnswerIndex);
+              
+                  return Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFFFFAFA),
+                        foregroundColor: Color(0xFF121212),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      ),
+                      onPressed: () => showQuestionDetail(context, questions[index], answers[index]),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              (index + 1).toString(),
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 3),
+                            Icon(
+                              isCorrect ? Icons.check_circle : Icons.cancel,
+                              color: isCorrect ? Colors.green : Colors.red,
+                              size: 17,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    onPressed: () => showQuestionDetail(context, questions[index], answers[index]),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(
-                          (index + 1).toString(),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(width: 6),
-                        Icon(
-                          isCorrect ? Icons.check_circle : Icons.cancel,
-                          color: isCorrect ? Colors.green : Colors.red,
-                          size: 20,
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
+                  );
+                }),
+              ),
             ),
 
             const SizedBox(height: 24),

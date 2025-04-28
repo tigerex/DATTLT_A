@@ -5,7 +5,7 @@ import '../models/test_question.dart';
 Future<List<TestQuestion>> fetchQuestions(String level) async {
   final response = await http.get(
     // Uri.parse('http://localhost/api/all'), // Này là hồi nãy tui test coi data thực kéo lên ổn không
-    Uri.parse('http://localhost:5000/api/question/random/$level'),
+    Uri.parse('http://192.168.0.105:5000/api/question/random/$level'),
   );
 
   if (response.statusCode == 200) {
