@@ -102,6 +102,30 @@ router.post('/add', async (req, res) => {
     }
 });
 
+// Lấy câu hỏi có hình
+router.get('/random/imgonly', async (req, res) => {
+    try {
+        const questions = await questionCollection.aggregate([
+            { $match: { questionImg: { $ne: null } } }, // Lọc câu hỏi có hình ảnh
+            { $sample: { size: 10 } } // Lấy ngẫu nhiên 5 câu hỏi
+        ]).toArray();
+
+        if (questions.length === 0) {
+            throw new Error("NOQUESTIONFOUND");
+        }
+        res.json(questions);
+
+    } catch (error) {
+        let msg = 'Lỗi server không rõ!';
+        let status = 400;
+
+        if (error.message === "NOQUESTIONFOUND") msg = '!!!Không tìm thấy câu hỏi nào có hình ảnh!!!'; status = 404;
+
+        return res.status(status).json({ msg, error: error.message });
+    }
+});
+
+
 // Lấy random 5 câu hỏi cùng level
 router.get('/random/:level', async (req, res) => {
     const { level } = req.params;
