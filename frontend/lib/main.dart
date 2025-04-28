@@ -5,6 +5,8 @@ import 'screens/login.dart';
 // import './screens/admin_crud.dart';
 
 import 'screens/home22.dart';
+import 'services/auth_service.dart';
+import 'dart:convert';
 
 void main() {
   runApp(const MyApp());
@@ -18,10 +20,43 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  String userName = '';
+  String userEmail = '';
+  String userPhone = '';
+  String userAge = '';
+  String userRole = '';
+
   @override
   void initState() {
     super.initState();
     checkLoginStatus();
+  }
+
+  void getUserInfo() async {
+    print('Fetching user info...');
+    // Call the AuthService to get user info 
+    final response = await AuthService.getUserInfo();
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print('User data: $data');
+      // Check if 'user' exists and is not empty
+      if (data!= null && data.isNotEmpty) {
+        setState(() {
+          userName = data['displayName'].toString();
+          userEmail = data['email'].toString();
+          userPhone = data['phone'].toString();
+          userAge = data['age'].toString();
+          userRole = data['role'].toString();
+          print('User info updated!');
+        });
+      } else {
+        print('User data is not available!');
+      }
+    } else {
+    print('Failed to fetch user info!');
+    }
   }
 
   Future<void> checkLoginStatus() async {
@@ -31,9 +66,10 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 1)); // for splash effect
 
     if (token != null && token.isNotEmpty) {
+      getUserInfo(); // Fetch user info if token is available
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen22(username: 'unknown',)),  //////Username đoạn này có thể lấy từ token khum???
+        MaterialPageRoute(builder: (context) => HomeScreen22(userName: userName,)),  //////Username đoạn này có thể lấy từ token khum???
       );
     } else {
       Navigator.pushReplacement(
