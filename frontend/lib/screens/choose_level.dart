@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../widgets/start_button.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../services/question_service.dart';
+import '../services/auth_service.dart';
+import './login.dart';
 
 import './start.dart';
 
@@ -10,17 +12,51 @@ class ChooseLevelScreen extends StatelessWidget {
 
   const ChooseLevelScreen({super.key, required this.username});
 
+  void showLogoutAlert(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Close dialog
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                AuthService.logout();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        // padding: const EdgeInsets.symmetric(horizontal: 24),
         decoration: BoxDecoration(color: Color(0xFFFFFAFA)),
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () => showLogoutAlert(context),
+              tooltip: "Logout",
+            ),
             const Spacer(),
             SvgPicture.asset(
               'lib/assets/images/monsterChooseLevel.svg',
@@ -48,7 +84,11 @@ class ChooseLevelScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => StartQuizScreen(username: username, questions: questions),
+                    builder:
+                        (context) => StartQuizScreen(
+                          username: username,
+                          questions: questions,
+                        ),
                   ),
                 );
               },
@@ -61,7 +101,11 @@ class ChooseLevelScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => StartQuizScreen(username: username, questions: questions),
+                    builder:
+                        (context) => StartQuizScreen(
+                          username: username,
+                          questions: questions,
+                        ),
                   ),
                 );
               },
@@ -74,7 +118,11 @@ class ChooseLevelScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => StartQuizScreen(username: username, questions: questions),
+                    builder:
+                        (context) => StartQuizScreen(
+                          username: username,
+                          questions: questions,
+                        ),
                   ),
                 );
               },
