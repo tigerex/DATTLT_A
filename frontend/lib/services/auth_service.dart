@@ -7,9 +7,10 @@ class AuthService {
   // Địa chỉ server của bạn
   // Thay thế 'yourServerIp' bằng địa chỉ IP hoặc tên miền của server
   // static String yourServerIp = '192.168.2.53'; // Thay thế bằng địa chỉ IP
-  static String yourServerIp = '192.168.2.68'; // Thay thế bằng địa chỉ IP
+  static String yourServerIp = '192.168.0.105'; // Thay thế bằng địa chỉ IP
   // static String yourServerIp = '10.106.18.125';
-  static String baseUrl = 'http://$yourServerIp:5000/api';
+  static String baseUrl = 'http://${yourServerIp}:5000/api';
+  // static String baseUrl = 'http://localhost:5000/api';
 
   static Future<http.Response> getUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
