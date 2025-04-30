@@ -11,7 +11,7 @@ const cookieParser = require('cookie-parser');
 const dbName = "User"; // Thay đổi tên cơ sở dữ liệu nếu cần
 const collectionName = "User"; // Tên collection trong MongoDB
 const accessPassword = "Raccoon-1"; // Mật khẩu truy cập MongoDB
-const url = "mongodb+srv://adminM:"+accessPassword+"@usertest.1opu14d.mongodb.net/?retryWrites=true&w=majority&appName=UserTest";
+const url = "mongodb+srv://adminM:"+accessPassword+"@usertest.1opu14d.mongodb.net/User?retryWrites=true&w=majority&appName=UserTest";
 
 const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true }); // Kết nối MongoDB
 const db = client.db(dbName); // Kết nối đến cơ sở dữ liệu
@@ -68,7 +68,7 @@ router.post('/newUser', async (req, res) => {
       });
       const result = await userCollection.insertOne(newUser); // Lưu người dùng mới vào MongoDB
       console.log("result:", result);
-      const token = generateAccessToken(result[0]._id); // Tạo token cho người dùng
+      const token = generateAccessToken(result.insertedId); // Tạo token cho người dùng
       res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 }); // Ghi cookie vào trình duyệt
       res.status(201).json({ msg: 'Đăng ký thành công!!!', user: result});
     // }
