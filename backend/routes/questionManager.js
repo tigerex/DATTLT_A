@@ -9,7 +9,7 @@ const app = express();
 const dbName = "User"; // Thay đổi tên cơ sở dữ liệu nếu cần
 const collectionName = "Question"; // Tên collection trong MongoDB
 const accessPassword = "Raccoon-1"; // Mật khẩu truy cập MongoDB
-const url = "mongodb+srv://adminM:"+accessPassword+"@usertest.1opu14d.mongodb.net/?retryWrites=true&w=majority&appName=UserTest";
+const url = "mongodb+srv://adminM:"+accessPassword+"@usertest.1opu14d.mongodb.net/User?retryWrites=true&w=majority&appName=UserTest";
 
 const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true }); // Kết nối MongoDB
 const db = client.db(dbName); // Kết nối đến cơ sở dữ liệu
@@ -132,7 +132,7 @@ router.get('/random/:level', async (req, res) => {
     try {
         const questions = await questionCollection.aggregate([
             { $match: { level: level } },
-            { $sample: { size: 10 } } // Lấy ngẫu nhiên 5 câu hỏi
+            { $sample: { size: 20 } } // Lấy ngẫu nhiên 5 câu hỏi
         ]).toArray();
 
         if (questions.length === 0) {
