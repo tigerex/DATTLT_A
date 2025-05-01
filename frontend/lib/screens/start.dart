@@ -115,6 +115,56 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
     });
   }
 
+  void openQuestionMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey.shade200,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: GridView.builder(
+            shrinkWrap: true,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 5, // 5 ô mỗi hàng
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.5, // chỉnh cho ô gọn
+            ),
+            itemCount: widget.questions.length,
+            itemBuilder: (context, index) {
+              bool haveDone = answers[index].selectedOptionIndex != null;
+
+              return ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: haveDone ? Color(0xFF493D79) : Colors.deepPurpleAccent.shade700,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.all(0),
+                ),
+                onPressed: () {
+                  setState(() {
+                    currentIndex = index; // chuyển tới câu chọn
+                  });
+                },
+                child: Text(
+                  (index + 1).toString(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFFFFAFA),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     timer.cancel();
@@ -127,160 +177,182 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
     double progress = (currentIndex + 1) / widget.questions.length;
 
     return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(color: Color(0xFFFFFAFA)),
-        child: Column(
-          // crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Quiz Time',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF8E3DFF),
-                  ),
-                ),
-                Row(
-                  children: [
-                    const Icon(Icons.timer, color: Color(0xFF8E3DFF)),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${remainingTime ~/ 60}:${(remainingTime % 60).toString().padLeft(2, '0')}',
-                      style: const TextStyle(color: Color(0xFF8E3DFF)),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.grey[300],
-              color: Colors.deepPurple,
-            ),
-            const SizedBox(height: 32),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 15,
+        leading: Center( // 👈 Bọc IconButton bằng Center
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            icon: const Icon(Icons.menu, size: 20),
+            // constraints: const BoxConstraints(),
+            onPressed: () => openQuestionMenu(context),
+          ),
+        ),
+      ),
 
-            // Đoạn này hiển thị câu hỏi hiện tại
-            // Nếu câu hỏi có ảnh thì sẽ hiển thị ảnh lên trước câu hỏi
-            if (question.questionImg != null && question.questionImg.isNotEmpty) ...[
-              Image.network(
-                question.questionImg, // Đường dẫn ảnh từ backend
-                height: 200, // Chiều cao của ảnh
-                width: double.infinity, // Chiều rộng của ảnh
-                fit: BoxFit.contain, // Cách hiển thị ảnh
-                errorBuilder: (context, error, stackTrace) {
-                  return const Text('Error loading image!!!'); // Nếu không tải được ảnh thì sẽ hiển thị text này
-                },
-              ),
-              const SizedBox(height: 20),
-            ],
-
-            Text(
-              question.questionText,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 20),
-
-            // Đoạn này bắt đầu liệt kê các option của một câu hỏi với index đi từ 0-3
-            ...List.generate(question.options.length, (index) {
-              //Biến này để tô đậm option mà người dùng chọn
-              final isSelected =
-                  answers[currentIndex].selectedOptionIndex == index;
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    // Nếu isSelected là true thì option sẽ có background màu đậm hơn các option còn lại
-                    backgroundColor:
-                        isSelected ? Color(0xFF493D79) : Color(0xFF7F5CFF),
-
-                    foregroundColor: Color(0xFFFFFAFA),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(32),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          decoration: BoxDecoration(color: Color(0xFFFFFAFA)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Quiz Time',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF8E3DFF),
                     ),
                   ),
-                  onPressed:
-                      () => selectAnswer(
-                        index,
-                      ), // Gọi hàm để lưu answer của người dùng theo thứ tự tương ứng với question
-
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12.0,
-                        horizontal: 12,
-                      ),
-                      child: Text(
-                        '${String.fromCharCode(97 + index)}. ${question.options[index]}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                    '${(currentIndex + 1).toString()}/10', // Này là để hiển thị số thứ tự câu hỏi đang làm
-                    style: const TextStyle(
-                      // Ví dụ đang làm câu 2 trong tổng số 10 câu -> 2/10
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF121212),
-                    ),
-                  ),
-                ),
-
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Row(
+                  Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.deepPurple,
-                        ),
-                        onPressed:
-                            goToBack, //Mũi tên để lui lại mấy câu hỏi trước
-                      ),
-                      const SizedBox(width: 10),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.arrow_forward,
-                          color: Colors.deepPurple,
-                        ),
-                        onPressed:
-                            goToNextQuestion, //Mũi tên để đi tới câu hỏi tiếp
+                      const Icon(Icons.timer, color: Color(0xFF8E3DFF)),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${remainingTime ~/ 60}:${(remainingTime % 60).toString().padLeft(2, '0')}',
+                        style: const TextStyle(color: Color(0xFF8E3DFF)),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-
-            const Spacer(),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: SvgPicture.asset(
-                'lib/assets/images/monsterQuestion.svg',
-                height: 80,
+                ],
               ),
-            ),
-          ],
+              
+              const SizedBox(height: 16),
+              LinearProgressIndicator(
+                value: progress,
+                backgroundColor: Colors.grey[300],
+                color: Colors.deepPurple,
+              ),
+        
+              const Spacer(),
+        
+              // Đoạn này hiển thị câu hỏi hiện tại
+              // Nếu câu hỏi có ảnh thì sẽ hiển thị ảnh lên trước câu hỏi
+              if (question.questionImg != null &&
+                  question.questionImg.isNotEmpty) ...[
+                Image.network(
+                  question.questionImg, // Đường dẫn ảnh từ backend
+                  height: 140, // Chiều cao của ảnh
+                  width: double.infinity, // Chiều rộng của ảnh
+                  fit: BoxFit.contain, // Cách hiển thị ảnh
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Text(
+                      'Error loading image!!!',
+                    ); // Nếu không tải được ảnh thì sẽ hiển thị text này
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+        
+              Text(
+                question.questionText,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 12),
+        
+              // Đoạn này bắt đầu liệt kê các option của một câu hỏi với index đi từ 0-3
+              ...List.generate(question.options.length, (index) {
+                //Biến này để tô đậm option mà người dùng chọn
+                final isSelected =
+                    answers[currentIndex].selectedOptionIndex == index;
+        
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      // Nếu isSelected là true thì option sẽ có background màu đậm hơn các option còn lại
+                      backgroundColor:
+                          isSelected ? Color(0xFF493D79) : Color(0xFF7F5CFF),
+        
+                      foregroundColor: Color(0xFFFFFAFA),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(32),
+                      ),
+                    ),
+                    onPressed:
+                        () => selectAnswer(
+                          index,
+                        ), // Gọi hàm để lưu answer của người dùng theo thứ tự tương ứng với question
+        
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6.0,
+                          horizontal: 6,
+                        ),
+                        child: Text(
+                          '${String.fromCharCode(97 + index)}. ${question.options[index]}',
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Text(
+                      '${(currentIndex + 1).toString()}/${widget.questions.length}', // Này là để hiển thị số thứ tự câu hỏi đang làm
+                      style: const TextStyle(
+                        // Ví dụ đang làm câu 2 trong tổng số 10 câu -> 2/10
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF121212),
+                      ),
+                    ),
+                  ),
+        
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.deepPurple,
+                          ),
+                          onPressed:
+                              goToBack, //Mũi tên để lui lại mấy câu hỏi trước
+                        ),
+                        const SizedBox(width: 10),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.arrow_forward,
+                            color: Colors.deepPurple,
+                          ),
+                          onPressed:
+                              goToNextQuestion, //Mũi tên để đi tới câu hỏi tiếp
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+        
+              // const Spacer(),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: SvgPicture.asset(
+                  'lib/assets/images/monsterQuestion.svg',
+                  height: 50,
+                ),
+              ),
+              const SizedBox(height: 20,)
+            ],
+          ),
         ),
       ),
     );
