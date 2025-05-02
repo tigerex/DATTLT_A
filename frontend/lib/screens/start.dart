@@ -169,16 +169,14 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
 
             // Đoạn này hiển thị câu hỏi hiện tại
             // Nếu câu hỏi có ảnh thì sẽ hiển thị ảnh lên trước câu hỏi
-            if (question.questionImg.isNotEmpty) ...[
+            if (question.questionImg != null && question.questionImg.isNotEmpty) ...[
               Image.network(
                 question.questionImg, // Đường dẫn ảnh từ backend
                 height: 200, // Chiều cao của ảnh
                 width: double.infinity, // Chiều rộng của ảnh
                 fit: BoxFit.contain, // Cách hiển thị ảnh
                 errorBuilder: (context, error, stackTrace) {
-                  return const Text(
-                    'Error loading image!!!',
-                  ); // Nếu không tải được ảnh thì sẽ hiển thị text này
+                  return const Text('Error loading image!!!'); // Nếu không tải được ảnh thì sẽ hiển thị text này
                 },
               ),
               const SizedBox(height: 20),
