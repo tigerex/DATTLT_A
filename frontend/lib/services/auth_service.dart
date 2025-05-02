@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart'; // Thư viện đ�
 class AuthService {
   // Địa chỉ server của bạn
   // Thay thế 'yourServerIp' bằng địa chỉ IP hoặc tên miền của server
-  static String yourServerIp = '192.168.0.103'; // Thay thế bằng địa chỉ IP
+  static String yourServerIp = '192.168.0.104'; // Thay thế bằng địa chỉ IP
   static String baseUrl = 'http://${yourServerIp}:5000/api';
 
   static Future<http.Response> getUserInfo() async {

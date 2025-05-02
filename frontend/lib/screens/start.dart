@@ -5,13 +5,17 @@ import '../models/test_question.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import './finish.dart';
 import '../models/test_answer.dart';
+import '../services/result.service.dart';
+import '../models/test_result.dart';
 
 class StartQuizScreen extends StatefulWidget {
+  final String userID;
   final String username;
   final List<TestQuestion> questions;
 
   const StartQuizScreen({
     super.key,
+    required this.userID,
     required this.questions,
     required this.username,
   });
@@ -84,7 +88,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
 
   // Hàm này được gọi khi người dùng đã hoàn thành bài test
   // Được dùng để tính điểm bài test và chuyển sang trang Finish
-  void calculateTest() {
+  void calculateTest() async {
     for (int i = 0; i < widget.questions.length; i++) {
       if (answers[i].selectedOptionIndex ==
           widget.questions[i].correctAnswerIndex) {
@@ -92,11 +96,14 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
       }
     }
 
+    submitResult();
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder:
             (context) => FinishScreen(
+              userID: widget.userID,
               userName: widget.username,
               score: score,
               total: 10,
@@ -105,6 +112,25 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
             ),
       ),
     );
+  }
+
+  void submitResult() async {
+    final result = Result(
+      resultId: '', // hoặc null
+      userId: widget.userID,
+      level: widget.questions[0].questionLevel,
+      timeTaken: remainingTime,
+      score: score,
+      questions: answers,
+    );
+
+    final submit = await ResultService().submitResult(result);
+
+    if (submit) {
+      print('✅ Gửi kết quả thành công');
+    } else {
+      print('❌ Gửi kết quả thất bại');
+    }
   }
 
   //Hàm để lưu answer của người dùng cho mỗi câu hỏi
@@ -139,7 +165,10 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
 
               return ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: haveDone ? Color(0xFF493D79) : Colors.deepPurpleAccent.shade700,
+                  backgroundColor:
+                      haveDone
+                          ? Color(0xFF493D79)
+                          : Colors.deepPurpleAccent.shade700,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -181,7 +210,8 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 15,
-        leading: Center( // 👈 Bọc IconButton bằng Center
+        leading: Center(
+          // 👈 Bọc IconButton bằng Center
           child: IconButton(
             padding: EdgeInsets.zero,
             icon: const Icon(Icons.menu, size: 20),
@@ -224,16 +254,16 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 16),
               LinearProgressIndicator(
                 value: progress,
                 backgroundColor: Colors.grey[300],
                 color: Colors.deepPurple,
               ),
-        
+
               const Spacer(),
-        
+
               // Đoạn này hiển thị câu hỏi hiện tại
               // Nếu câu hỏi có ảnh thì sẽ hiển thị ảnh lên trước câu hỏi
               if (question.questionImg != null &&
@@ -251,19 +281,22 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                 ),
                 const SizedBox(height: 16),
               ],
-        
+
               Text(
                 question.questionText,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               const SizedBox(height: 12),
-        
+
               // Đoạn này bắt đầu liệt kê các option của một câu hỏi với index đi từ 0-3
               ...List.generate(question.options.length, (index) {
                 //Biến này để tô đậm option mà người dùng chọn
                 final isSelected =
                     answers[currentIndex].selectedOptionIndex == index;
-        
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 3),
                   child: ElevatedButton(
@@ -271,7 +304,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                       // Nếu isSelected là true thì option sẽ có background màu đậm hơn các option còn lại
                       backgroundColor:
                           isSelected ? Color(0xFF493D79) : Color(0xFF7F5CFF),
-        
+
                       foregroundColor: Color(0xFFFFFAFA),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(32),
@@ -281,7 +314,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                         () => selectAnswer(
                           index,
                         ), // Gọi hàm để lưu answer của người dùng theo thứ tự tương ứng với question
-        
+
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
@@ -314,7 +347,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                       ),
                     ),
                   ),
-        
+
                   Align(
                     alignment: Alignment.bottomRight,
                     child: Row(
@@ -341,7 +374,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                   ),
                 ],
               ),
-        
+
               // const Spacer(),
               Align(
                 alignment: Alignment.bottomRight,
@@ -350,7 +383,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                   height: 50,
                 ),
               ),
-              const SizedBox(height: 20,)
+              const SizedBox(height: 20),
             ],
           ),
         ),

@@ -7,11 +7,17 @@ import './login.dart';
 
 import './start.dart';
 
-class ChooseLevelScreen extends StatelessWidget {
+class ChooseLevelScreen extends StatefulWidget {
+  final String userID;
   final String username;
 
-  const ChooseLevelScreen({super.key, required this.username});
+  const ChooseLevelScreen({super.key, required this.userID, required this.username});
 
+  @override
+  State<ChooseLevelScreen> createState() => _ChooseLevelScreenState();
+}
+
+class _ChooseLevelScreenState extends State<ChooseLevelScreen> {
   void showLogoutAlert(BuildContext context) {
     showDialog(
       context: context,
@@ -64,7 +70,7 @@ class ChooseLevelScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              "Let's go, $username!",
+              "Let's go, ${widget.username}!",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -86,7 +92,8 @@ class ChooseLevelScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder:
                         (context) => StartQuizScreen(
-                          username: username,
+                          userID: widget.userID,
+                          username: widget.username,
                           questions: questions,
                         ),
                   ),
@@ -103,7 +110,8 @@ class ChooseLevelScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder:
                         (context) => StartQuizScreen(
-                          username: username,
+                          userID: widget.userID,
+                          username: widget.username,
                           questions: questions,
                         ),
                   ),
@@ -120,7 +128,8 @@ class ChooseLevelScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder:
                         (context) => StartQuizScreen(
-                          username: username,
+                          userID: widget.userID,
+                          username: widget.username,
                           questions: questions,
                         ),
                   ),
@@ -137,7 +146,8 @@ class ChooseLevelScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder:
                         (context) => StartQuizScreen(
-                          username: username,
+                          userID: widget.userID,
+                          username: widget.username,
                           questions: questions,
                         ),
                   ),

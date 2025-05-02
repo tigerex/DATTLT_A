@@ -8,15 +8,18 @@ import 'dart:convert';
 import './login.dart';
 
 class HomeScreen22 extends StatefulWidget {
-  final String userName;
+  // final String userID;
+  // final String userName;
 
-  const HomeScreen22({super.key, required this.userName});
+  // required this.userName, required this.userID
+  const HomeScreen22({super.key});
 
   @override
   State<HomeScreen22> createState() => _HomeScreen22State();
 }
 
 class _HomeScreen22State extends State<HomeScreen22> {
+  String userID = '';
   String userName = '';
   String userEmail = '';
   String userPhone = '';
@@ -37,6 +40,7 @@ class _HomeScreen22State extends State<HomeScreen22> {
         final data = jsonDecode(response.body);
         print('User data: $data');
         setState(() {
+          userID = data['_id'].toString();
           userName = data['displayName'].toString();
           userEmail = data['email'].toString();
           userPhone = data['phone'].toString();
@@ -131,7 +135,7 @@ class _HomeScreen22State extends State<HomeScreen22> {
                     ),
                     const Spacer(flex: 2),
                     Text(
-                      'Hi ${widget.userName}',
+                      'Hi ${userName}',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -172,7 +176,8 @@ class _HomeScreen22State extends State<HomeScreen22> {
                             MaterialPageRoute(
                               builder:
                                   (context) => ChooseLevelScreen(
-                                    username: widget.userName,
+                                    userID: userID,
+                                    username: userName,
                                   ),
                             ),
                           ),
