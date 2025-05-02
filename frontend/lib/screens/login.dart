@@ -4,9 +4,9 @@ import 'dart:convert';
 import '../widgets/custom_textfield.dart';
 import '../widgets/round_icon_button.dart';
 import '../services/auth_service.dart';
-//import '../screens/home.dart';
 import 'register.dart';
 import './home22.dart';
+import './admin_crud.dart';
 
 
 
@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginScreen> {
     );
   }
 
-  void showLoginWelcomeDialog(BuildContext context, String userName) {
+  void showLoginWelcomeDialog(BuildContext context, String userName, String role) {
   showDialog(
     context: context,
     barrierDismissible: false, // Prevent user from closing it manually
@@ -56,10 +56,19 @@ class _LoginPageState extends State<LoginScreen> {
 
   Future.delayed(const Duration(seconds: 2), () {
     Navigator.of(context).pop(); // Close the dialog
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => HomeScreen22(userName: userName,)),
-    );
+
+    if (role != "admin") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen22(userName: userName,)),
+      );
+    }else{
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => AdminCrudScreen()),
+      );
+    }
+    
   });
 }
 
@@ -79,7 +88,8 @@ class _LoginPageState extends State<LoginScreen> {
       print('Login OK!');
       final data = jsonDecode(response.body);
       final String userName = data['user'][0]['displayName'];
-      showLoginWelcomeDialog(context, userName); // Show welcome dialog
+      final String role = data['user'][0]['role'];
+      showLoginWelcomeDialog(context, userName, role); // Show welcome dialog
 
     } 
 
