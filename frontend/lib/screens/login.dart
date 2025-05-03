@@ -8,8 +8,6 @@ import 'register.dart';
 import './home22.dart';
 import './admin_crud.dart';
 
-
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -18,7 +16,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginScreen> {
-
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool isLoading = false;
@@ -42,36 +39,40 @@ class _LoginPageState extends State<LoginScreen> {
     );
   }
 
-  void showLoginWelcomeDialog(BuildContext context, String userName, String role) {
-  showDialog(
-    context: context,
-    barrierDismissible: false, // Prevent user from closing it manually
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('Welcome'),
-        content: Text('Welcome back, $userName!'),
-      );
-    },
-  );
+  void showLoginWelcomeDialog(BuildContext context, Map<String, dynamic> user) {
+    final String userID = user['_id'];
+    final String userName = user['displayName'];
+    final String role = user['role'];
 
-  Future.delayed(const Duration(seconds: 2), () {
-    Navigator.of(context).pop(); // Close the dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent user from closing it manually
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Welcome'),
+          content: Text('Welcome back, $userName!'),
+        );
+      },
+    );
 
-    if (role != "admin") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen22(userName: userName,)),
-      );
-    }else{
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => AdminCrudScreen()),
-      );
-    }
-    
-  });
-}
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.of(context).pop(); // Close the dialog
 
+      if (role != "admin") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen22(),
+          ),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AdminCrudScreen()),
+        );
+      }
+    });
+  }
 
   void handleLogin() async {
     final email = emailController.text.trim();
@@ -87,11 +88,11 @@ class _LoginPageState extends State<LoginScreen> {
       // Đăng nhập thành công
       print('Login OK!');
       final data = jsonDecode(response.body);
-      final String userName = data['user'][0]['displayName'];
-      final String role = data['user'][0]['role'];
-      showLoginWelcomeDialog(context, userName, role); // Show welcome dialog
-
-    } 
+      final user = data['user'][0];
+      // final String userName = data['user'][0]['displayName'];
+      // final String role = data['user'][0]['role'];
+      showLoginWelcomeDialog(context, user); // Show welcome dialog
+    }
 
     if (response.statusCode == 400) {
       // Sai email hoặc mật khẩu
@@ -119,27 +120,24 @@ class _LoginPageState extends State<LoginScreen> {
       MaterialPageRoute(builder: (context) => const RegisterScreen()),
     );
   }
-  
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [
-                Color(0xFFFFFFFF), // trắng
-                Color(0xFF643DFF), // tím đậm
-              ],
-            ),
+        height: MediaQuery.of(context).size.height,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [
+              Color(0xFFFFFFFF), // trắng
+              Color(0xFF643DFF), // tím đậm
+            ],
           ),
-
-          
+        ),
 
         child: Center(
           child: SingleChildScrollView(
@@ -155,10 +153,7 @@ class _LoginPageState extends State<LoginScreen> {
                 children: [
                   const Text(
                     'Login',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 24),
                   CustomTextField(
@@ -174,13 +169,13 @@ class _LoginPageState extends State<LoginScreen> {
                     obscureText: true,
                   ),
                   const SizedBox(height: 24),
-                  
+
                   RoundIconButton(
                     onPressed: handleLogin,
                   ), // Nút tròn màu tím với icon mũi tên
                   ElevatedButton(
                     onPressed: handleRegister,
-            
+
                     child: const Text("Register"),
                   ),
                   const SizedBox(height: 24),
@@ -191,7 +186,7 @@ class _LoginPageState extends State<LoginScreen> {
                       SizedBox(width: 16),
                       SocialIcon(icon: FontAwesomeIcons.facebookF),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -215,4 +210,3 @@ class SocialIcon extends StatelessWidget {
     );
   }
 }
-

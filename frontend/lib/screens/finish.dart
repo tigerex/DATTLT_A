@@ -6,7 +6,8 @@ import '../models/test_answer.dart';
 import '../models/test_question.dart';
 import '../widgets/QuestionDetailDialog.dart';
 
-class FinishScreen extends StatelessWidget {
+class FinishScreen extends StatefulWidget {
+  final String userID;
   final String userName;
   final int score;
   final int total;
@@ -15,6 +16,7 @@ class FinishScreen extends StatelessWidget {
 
   const FinishScreen({
     super.key,
+    required this.userID,
     required this.userName,
     required this.score,
     required this.total,
@@ -22,16 +24,24 @@ class FinishScreen extends StatelessWidget {
     required this.questions,
   });
 
-  //Truyền biến cho widget QuestionDetailDialog để hiển thị chi tiết answer
-  void showQuestionDetail(BuildContext context, TestQuestion question, Answer userAnswer) {
-  showDialog(
-    context: context,
-    builder: (context) => QuestionDetailDialog(
-      question: question,
-      userAnswer: userAnswer,
-    ),
-  );
+  @override
+  State<FinishScreen> createState() => _FinishScreenState();
 }
+
+class _FinishScreenState extends State<FinishScreen> {
+  //Truyền biến cho widget QuestionDetailDialog để hiển thị chi tiết answer
+  void showQuestionDetail(
+    BuildContext context,
+    TestQuestion question,
+    Answer userAnswer,
+  ) {
+    showDialog(
+      context: context,
+      builder:
+          (context) =>
+              QuestionDetailDialog(question: question, userAnswer: userAnswer),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +66,7 @@ class FinishScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'Great job, $userName!',
+                'Great job, ${widget.userName}!',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 22,
@@ -71,7 +81,7 @@ class FinishScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'You scored: $score out of $total', // Bên start giải thích cách tính. Hàm calculateTest
+                'You scored: ${widget.score} out of ${widget.total}', // Bên start giải thích cách tính. Hàm calculateTest
                 style: const TextStyle(
                   fontSize: 16,
                   color: Color(0xFFFFFAFA),
@@ -79,10 +89,13 @@ class FinishScreen extends StatelessWidget {
                 ),
               ),
               // const SizedBox(height: 15),
-          
+
               //Từ chỗ này in 10 answer của user, bấm vào sẽ coi được chi tiết
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 👈 chỉnh margin ngoài
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ), // 👈 chỉnh margin ngoài
                 child: GridView.count(
                   crossAxisCount: 4, // 👉 4 ô answer mỗi hàng
                   mainAxisSpacing: 10, // 👈 khoảng cách giữa các hàng
@@ -90,14 +103,13 @@ class FinishScreen extends StatelessWidget {
                   childAspectRatio: 2.0,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  children: List.generate(answers.length, (index) {
-                
+                  children: List.generate(widget.answers.length, (index) {
                     //Để check đúng sai, in ✅ nếu đúng và ❌ nếu sai hoặc không chọn option
                     //Biến được sử dụng ở line 123
                     final bool isCorrect =
-                        (answers[index].selectedOptionIndex ==
-                            questions[index].correctAnswerIndex);
-                
+                        (widget.answers[index].selectedOptionIndex ==
+                            widget.questions[index].correctAnswerIndex);
+
                     return Padding(
                       padding: const EdgeInsets.all(2),
                       child: ElevatedButton(
@@ -107,26 +119,36 @@ class FinishScreen extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
                         ),
-          
+
                         //User bấm chọn câu nào đó trong 10 câu để coi chi tiết
                         //Gọi hàm hiển thị chi tiết câu trả lời
-                        onPressed: () => showQuestionDetail(context, questions[index], answers[index]),
+                        onPressed:
+                            () => showQuestionDetail(
+                              context,
+                              widget.questions[index],
+                              widget.answers[index],
+                            ),
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-          
                               //Số thứ tự của từng câu
                               Text(
                                 (index + 1).toString(),
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               const SizedBox(width: 3),
-          
+
                               //icon thể hiện là câu đó user làm đúng hay sai
                               Icon(
                                 isCorrect ? Icons.check_circle : Icons.cancel,
@@ -141,7 +163,7 @@ class FinishScreen extends StatelessWidget {
                   }),
                 ),
               ),
-          
+
               const SizedBox(height: 24),
               const Text(
                 'Keep practicing to improve even more!',
@@ -161,18 +183,24 @@ class FinishScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder:
-                            (context) => ChooseLevelScreen(username: userName),
+                            (context) => ChooseLevelScreen(
+                              userID: widget.userID,
+                              username: widget.userName,
+                            ),
                       ),
                     ),
                 child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 12.0,
+                  ),
                   child: Text(
                     'Take another test',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-              const SizedBox(height: 20,)
+              const SizedBox(height: 20),
             ],
           ),
         ),

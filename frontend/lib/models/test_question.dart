@@ -49,6 +49,7 @@
 
 class TestQuestion {
   final String questionId;
+  final String questionLevel;
   final String questionImg;
   final String questionText;
   final int maxTime;
@@ -57,6 +58,7 @@ class TestQuestion {
 
   TestQuestion({
     required this.questionId,
+    required this.questionLevel,
     required this.questionImg,
     required this.questionText,
     required this.maxTime,
@@ -66,13 +68,17 @@ class TestQuestion {
 
   factory TestQuestion.fromJson(Map<String, dynamic> json) {
     List<dynamic> optionList = json['options'];
-    List<String> optionTexts = optionList.map((opt) => opt['text'].toString()).toList();
+    List<String> optionTexts =
+        optionList.map((opt) => opt['text'].toString()).toList();
 
     String correctLabel = json['correctAnswer'];
-    int correctIndex = optionList.indexWhere((opt) => opt['label'] == correctLabel);
+    int correctIndex = optionList.indexWhere(
+      (opt) => opt['label'] == correctLabel,
+    );
 
     return TestQuestion(
-      questionId: json['questionId'],
+      questionId: json['_id'],
+      questionLevel: json['level'],
       questionImg: json['questionImg'] ?? '', // Cái này có thể null
       questionText: json['questionText'],
       maxTime: json['maxTime'],

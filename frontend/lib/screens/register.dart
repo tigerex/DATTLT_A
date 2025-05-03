@@ -66,7 +66,7 @@ class _RegisterPageState extends State<RegisterScreen> {
       print('Register OK: ${response.body}');
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen22(userName: displayName,)),
+        MaterialPageRoute(builder: (context) => HomeScreen22()),
       );
     } else {
       setState(() {

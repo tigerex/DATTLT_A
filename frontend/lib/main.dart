@@ -21,6 +21,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  String userID = '';
   String userName = '';
   String userEmail = '';
   String userPhone = '';
@@ -35,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void getUserInfo() async {
     print('Fetching user info...');
-    // Call the AuthService to get user info 
+    // Call the AuthService to get user info
     final response = await AuthService.getUserInfo();
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
@@ -43,8 +44,9 @@ class _SplashScreenState extends State<SplashScreen> {
       final data = jsonDecode(response.body);
       print('User data: $data');
       // Check if 'user' exists and is not empty
-      if (data!= null && data.isNotEmpty) {
+      if (data != null && data.isNotEmpty) {
         setState(() {
+          userID = data['_id'];
           userName = data['displayName'].toString();
           userEmail = data['email'].toString();
           userPhone = data['phone'].toString();
@@ -56,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
         print('User data is not available!');
       }
     } else {
-    print('Failed to fetch user info!');
+      print('Failed to fetch user info!');
     }
   }
 
@@ -70,7 +72,9 @@ class _SplashScreenState extends State<SplashScreen> {
       getUserInfo(); // Fetch user info if token is available
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen22(userName: userName,)),  //////Username đoạn này có thể lấy từ token khum???
+        MaterialPageRoute(
+          builder: (context) => HomeScreen22(),
+        ),
       );
     } else {
       Navigator.pushReplacement(
@@ -82,9 +86,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
 
