@@ -1,6 +1,7 @@
 class Answer {
-  final String questionId;            // ID của câu hỏi
-  int? selectedOptionIndex;           // Chỉ số đáp án đã chọn (0 = A, 1 = B, ...), null nếu chưa chọn
+  final String questionId; // ID của câu hỏi
+  int?
+  selectedOptionIndex; // Chỉ số đáp án đã chọn (0 = A, 1 = B, ...), null nếu chưa chọn
 
   String get userAnswer {
     switch (selectedOptionIndex) {
@@ -17,21 +18,34 @@ class Answer {
     }
   }
 
-
   Answer({required this.questionId, this.selectedOptionIndex});
-  
 
   Map<String, dynamic> toJson() => {
-    
     "question_Id": questionId,
     "userAnswer": userAnswer,
   };
 
-
   factory Answer.fromJson(Map<String, dynamic> json) {
-    return Answer(
-      questionId: json['question_Id'],
-      selectedOptionIndex: json['userAnswer']
-    );
+    final answerLetter = json['userAnswer'];
+
+    int? index;
+    switch (answerLetter) {
+      case 'A':
+        index = 0;
+        break;
+      case 'B':
+        index = 1;
+        break;
+      case 'C':
+        index = 2;
+        break;
+      case 'D':
+        index = 3;
+        break;
+      default:
+        index = null;
+    }
+
+    return Answer(questionId: json['question_Id'], selectedOptionIndex: index);
   }
 }

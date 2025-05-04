@@ -1,4 +1,5 @@
 import 'package:frontend/models/test_answer.dart';
+import 'package:intl/intl.dart';
 
 class Result {
   final String resultId;
@@ -6,8 +7,10 @@ class Result {
   final String level;
   final int timeTaken;
   final int score;
+
   final List<Answer>
   questions; // This will have <<List answers>> data from calculateTest function in start.dart
+
   final DateTime? date;
 
   Result({
@@ -20,20 +23,34 @@ class Result {
     this.date,
   });
 
-  String get formattedDate {
-    return "${date?.year}-${date?.month.toString().padLeft(2, '0')}-${date?.day.toString().padLeft(2, '0')}";
+  String get formattedDateTime {
+    return DateFormat('dd/MM/yyyy HH:mm').format(date!);
   }
-  
+
+  // factory Result.fromJson(Map<String, dynamic> json) {
+  //   return Result(
+  //     resultId: json['_id'],
+  //     userId: json['userId'],
+  //     level: json['level'],
+  //     timeTaken: json['timeTaken'],
+  //     score: json['score'],
+  //     questions: List<Answer>.from(json['questions']),
+  //     date: DateTime.parse(json['createdAt']),
+  //   );
+  // }
 
   factory Result.fromJson(Map<String, dynamic> json) {
     return Result(
-      resultId: json['resultId'],
+      resultId: json['_id'],
       userId: json['userId'],
       level: json['level'],
       timeTaken: json['timeTaken'],
       score: json['score'],
-      questions: List<Answer>.from(json['questions']),
-      // date: DateTime.parse(json['createdAt']),
+      questions:
+          (json['questions'] as List)
+              .map((item) => Answer.fromJson(item as Map<String, dynamic>))
+              .toList(),
+      date: DateTime.parse(json['createdAt']),
     );
   }
 

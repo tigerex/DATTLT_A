@@ -3,13 +3,13 @@ import 'package:http/http.dart' as http;
 import '../models/test_result.dart';
 
 class ResultService {
-  static String yourServerIp = '192.168.0.104'; // Thay thế bằng địa chỉ IP
-  // static String baseUrl = 'http://$yourServerIp:5000/api/result/add'; 
-  static String baseUrl = 'http://localhost:5000/api/result/add'; 
+  static String yourServerIp = '192.168.0.106'; // Thay thế bằng địa chỉ IP
+  // static String baseUrl = 'http://$yourServerIp:5000/api/result/add';
+  static String baseUrl = 'http://localhost:5000/api/result';
 
   // GET all results
   Future<List<Result>> fetchResults() async {
-    final response = await http.get(Uri.parse(baseUrl));
+    final response = await http.get(Uri.parse('$baseUrl/all'));
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
@@ -24,7 +24,7 @@ class ResultService {
     print(json.encode(result.toJson()));
 
     final response = await http.post(
-      Uri.parse(baseUrl),
+      Uri.parse('$baseUrl/add'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(result.toJson()),
     );

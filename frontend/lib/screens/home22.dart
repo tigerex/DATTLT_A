@@ -6,6 +6,7 @@ import './choose_level.dart';
 import '../services/auth_service.dart';
 import 'dart:convert';
 import './login.dart';
+import './test_records.dart';
 
 class HomeScreen22 extends StatefulWidget {
   // final String userID;
@@ -91,6 +92,30 @@ class _HomeScreen22State extends State<HomeScreen22> {
     );
   }
 
+  Widget buildBottomNavButton(
+    String label,
+    String iconPath,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          
+          Image.asset(
+            iconPath,
+            width: 36,
+            height: 36,
+            fit: BoxFit.contain,),
+
+          const SizedBox(height: 4),
+          Text(label, style: const TextStyle(fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,7 +189,7 @@ class _HomeScreen22State extends State<HomeScreen22> {
                     ),
                     const Spacer(),
                     SvgPicture.asset(
-                      'lib/assets/images/monsterDonut.svg',
+                      'assets/monsterDonut.svg',
                       height: 120,
                     ),
                     const Spacer(),
@@ -183,6 +208,35 @@ class _HomeScreen22State extends State<HomeScreen22> {
                           ),
                     ),
                     const Spacer(flex: 2),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        buildBottomNavButton(
+                          "Test records",
+                          "assets/records.png",
+                          () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => TestRecords()),
+                            );
+                          },
+                        ),
+                        buildBottomNavButton(
+                          "Top 10",
+                          "assets/top10.png",
+                          () {
+                            Navigator.pushNamed(context, '/top10'); 
+                          },//Khi có page top10 thì sẽ sửa code chỗ này
+                        ),
+                        buildBottomNavButton(
+                          "Account",
+                          "assets/account.png",
+                          () {
+                            Navigator.pushNamed(context, '/account');
+                          },//Khi có page account thì sẽ sửa code chỗ này
+                        ),
+                      ],
+                    ),
                   ],
                 ),
       ),
