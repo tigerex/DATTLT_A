@@ -43,7 +43,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
     answers = List.generate(
       widget.questions.length,
       (index) => Answer(
-        questionId: widget.questions[index].questionId,
+        questionId: widget.questions[index].questionId!,
         selectedOptionIndex: null,
       ),
     );
@@ -296,9 +296,9 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
 
               // Đoạn này hiển thị câu hỏi hiện tại
               // Nếu câu hỏi có ảnh thì sẽ hiển thị ảnh lên trước câu hỏi
-              if (question.questionImg.isNotEmpty) ...[
+              if (question.questionImg!.isNotEmpty) ...[
                 Image.network(
-                  question.questionImg, // Đường dẫn ảnh từ backend
+                  question.questionImg!, // Đường dẫn ảnh từ backend
                   height: 140, // Chiều cao của ảnh
                   width: double.infinity, // Chiều rộng của ảnh
                   fit: BoxFit.contain, // Cách hiển thị ảnh
@@ -352,7 +352,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
                           horizontal: 6,
                         ),
                         child: Text(
-                          '${String.fromCharCode(97 + index)}. ${question.options[index]}',
+                          '${String.fromCharCode(97 + index)}. ${question.options[index].optionText}',
                           style: const TextStyle(fontSize: 14),
                         ),
                       ),

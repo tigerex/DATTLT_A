@@ -62,11 +62,12 @@ router.post('/add', upload.single('image'), async (req, res) => {
 
     try {
         // Check required fields
-        if (!questionId || !level || !questionText || !options || !correctAnswer || !maxTime) {
+        if (!level || !questionText || !options || !correctAnswer || !maxTime) {
             throw new Error("MISSINGDATA");
         }
 
-        const parsedOptions = JSON.parse(options);
+        const parsedOptions = options;
+        // const parsedOptions = JSON.parse(options);
 
         if (!Array.isArray(parsedOptions) || parsedOptions.length !== 4) {
             throw new Error("INVALIDOPTIONS");

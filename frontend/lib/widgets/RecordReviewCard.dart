@@ -43,7 +43,7 @@ class RecordReviewCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: ListTile(
-                  title: Text(question.options[i]),
+                  title: Text(question.options[i].optionText!),
                   leading: Icon(
                     isCorrect
                         ? Icons.check_circle

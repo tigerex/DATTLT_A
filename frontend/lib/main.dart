@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/admin_crud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-
 
 // import 'screens/home.dart';
 // import './screens/admin_crud.dart';
@@ -24,7 +24,7 @@ void main() async {
         projectId: "my-first-project-ecf2b",
         storageBucket: "my-first-project-ecf2b.firebasestorage.app",
         messagingSenderId: "128557703341",
-        appId: "1:128557703341:web:7c54b6e9dd9fe4e50de624"
+        appId: "1:128557703341:web:7c54b6e9dd9fe4e50de624",
       ),
     );
   } else {
@@ -91,12 +91,20 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (token != null && token.isNotEmpty) {
       getUserInfo(); // Fetch user info if token is available
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomeScreen22(),
-        ),
-      );
+
+      await Future.delayed(const Duration(seconds: 1)); // wait for userRole to be updated
+
+      if (userRole != 'admin') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen22()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AdminCrudScreen()),
+        );
+      }
     } else {
       Navigator.pushReplacement(
         context,
