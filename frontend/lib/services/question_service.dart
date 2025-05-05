@@ -4,8 +4,8 @@ import '../models/test_question.dart';
 
 Future<List<TestQuestion>> fetchQuestions(String level) async {
 
-  final String yourServerIp = '192.168.0.106'; // Thay thế bằng địa chỉ IP
-  final String baseUrl = 'http://$yourServerIp:5000/api'; 
+  final String yourServerIp = '192.168.56.1'; // Thay thế bằng địa chỉ IP
+  final String baseUrl = 'http://localhost:5000/api'; 
 
   final response = await http.get(
     Uri.parse('$baseUrl/question/random/$level'),
