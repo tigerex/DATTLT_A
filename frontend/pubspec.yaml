@@ -28,14 +28,31 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  # flutter_localizations dùng để hỗ trợ đa ngôn ngữ trong ứng dụng cơ mà mình có cần đâu :))?
   intl: ^0.18.1
   flutter_svg: ^2.0.7
+
+  # http và dio dùng để thực hiện các yêu cầu HTTP và quản lý trạng thái
   http: ^1.3.0
+  dio: ^5.8.0
+
+  # shared_preferences dùng để lưu trữ dữ liệu cục bộ trên thiết bị
+  # font_awesome_flutter dùng để sử dụng các biểu tượng Font Awesome trong ứng dụng
   shared_preferences: ^2.0.13
   font_awesome_flutter: ^10.7.0
-  dio: ^5.3.0
+  
+  # cookie_jar dùng để quản lý cookie trong ứng dụng
+  # flutter_secure_storage dùng để lưu trữ dữ liệu nhạy cảm một cách an toàn
   cookie_jar: ^4.0.8
   flutter_secure_storage: ^9.0.0
+
+  # Firebase dependencies
+  image_picker: ^1.1.2  # dùng để chọn ảnh từ thư viện hoặc chụp ảnh bằng camera
+  firebase_core: ^3.13.0 # đây là thư viện chính của Firebase, cần thiết để sử dụng các dịch vụ Firebase khác
+  firebase_messaging: ^15.2.5 # dùng để gửi và nhận thông báo từ Firebase Cloud Messaging nếu có thời gian làm :)))
+  firebase_storage: ^12.4.5 # Firebase Storage để lưu trữ và truy xuất tệp tin
+  firebase_auth: ^5.5.3 # Firebase Authentication để xác thực người dùng
+
   flutter:
     sdk: flutter
 

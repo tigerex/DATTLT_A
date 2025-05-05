@@ -266,8 +266,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
 
               // Đoạn này hiển thị câu hỏi hiện tại
               // Nếu câu hỏi có ảnh thì sẽ hiển thị ảnh lên trước câu hỏi
-              if (question.questionImg != null &&
-                  question.questionImg.isNotEmpty) ...[
+              if (question.questionImg.isNotEmpty) ...[
                 Image.network(
                   question.questionImg, // Đường dẫn ảnh từ backend
                   height: 140, // Chiều cao của ảnh
@@ -379,7 +378,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
               Align(
                 alignment: Alignment.bottomRight,
                 child: SvgPicture.asset(
-                  'lib/assets/images/monsterQuestion.svg',
+                  'assets/monsterQuestion.svg',
                   height: 50,
                 ),
               ),

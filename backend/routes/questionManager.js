@@ -1,9 +1,13 @@
-const express = require('express');
+const express = require('express'); // Import express để tạo router
+const multer = require('multer'); // Middleware để xử lý file upload
+const { v4: uuidv4 } = require('uuid'); // Thư viện tạo ID ngẫu nhiên
 const router = express.Router();
 const { MongoClient } = require('mongodb');
+const { ObjectId } = require('mongodb');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const Question = require('../models/Question'); // Import model Question
+const bucket = require('../firebase/firebase'); // Import model Bucket
 
 const app = express();
 const dbName = "User"; // Thay đổi tên cơ sở dữ liệu nếu cần
@@ -14,6 +18,8 @@ const url = "mongodb+srv://adminM:"+accessPassword+"@usertest.1opu14d.mongodb.ne
 const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true }); // Kết nối MongoDB
 const db = client.db(dbName); // Kết nối đến cơ sở dữ liệu
 const questionCollection = db.collection(collectionName); // Tạo collection để lưu trữ câu hỏi
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Cấu hình middleware
 app.use(cookieParser()); // Sử dụng cookie-parser để xử lý cookie
@@ -31,8 +37,8 @@ router.get ('/all', async(req, res) => {
 
 // Tìm kiếm câu hỏi theo id trong MongoDB (for demo)
 router.get('/id/:id', async(req, res) => {
-    const { id } = req.params;
-    const question = await questionCollection.findOne({ questionId: id });
+    const id = new ObjectId(req.params.id); // convert string → ObjectId
+    const question = await questionCollection.findOne({ _id: id });
     if (!question) {
         return res.status(404).json({ message: 'Câu hỏi không tồn tại.' });
     }
@@ -50,38 +56,67 @@ router.get('/level/:level', async(req, res) => {
 });
 
 // Them câu hỏi mới vào MongoDB
-router.post('/add', async (req, res) => {
-    const { questionId, level, questionImg, questionText, options, correctAnswer, maxTime } = req.body;
+router.post('/add', upload.single('image'), async (req, res) => {
+    const { questionId, level, questionText, options, correctAnswer, maxTime } = req.body;
+    const file = req.file; // file upload từ client
+
     try {
-        // Kiểm tra xem có thiếu thông tin không
+        // Check required fields
         if (!questionId || !level || !questionText || !options || !correctAnswer || !maxTime) {
             throw new Error("MISSINGDATA");
         }
 
-        // Kiểm tra đủ 4 lựa chọn
-        if (!Array.isArray(options) || options.length !== 4) {
+        const parsedOptions = JSON.parse(options);
+
+        if (!Array.isArray(parsedOptions) || parsedOptions.length !== 4) {
             throw new Error("INVALIDOPTIONS");
         }
 
-        // Kiểm tra định dạng của các lựa chọn
-        for (let opt of options) {
+        for (let opt of parsedOptions) {
             if (!opt.label || !opt.text) {
                 throw new Error("INVALIDOPTIONSFORMAT");
             }
         }
 
-        // Kiểm tra xem đáp án đúng có khớp với bất kỳ label nào trong các lựa chọn không
-        const validLabels = options.map(opt => opt.label);
+        const validLabels = parsedOptions.map(opt => opt.label);
         if (!validLabels.includes(correctAnswer)) {
             throw new Error("INVALIDCORRECTANSWER");
+        }
+
+        // Upload to Firebase Storage if image is provided
+        let questionImgUrl = null;
+        if (file) {
+            const fileName = `questions/${uuidv4()}_${file.originalname}`;
+            const blob = bucket.file(fileName);
+            const blobStream = blob.createWriteStream({
+                metadata: {
+                    contentType: file.mimetype,
+                },
+            });
+
+            await new Promise((resolve, reject) => {
+                blobStream.on('error', reject);
+                blobStream.on('finish', resolve);
+                blobStream.end(file.buffer);
+            });
+
+            // Get the public URL
+            await blob.makePublic();
+            questionImgUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+
+            // const [url] = await blob.getSignedUrl({
+            //     action: 'read',
+            //     expires: '03-01-2500',
+            // });
+            // questionImgUrl = url;
         }
 
         const newQuestion = {
             questionId,
             level,
-            questionImg: questionImg || null,
+            questionImg: questionImgUrl,
             questionText,
-            options,
+            options: parsedOptions,
             correctAnswer,
             maxTime,
             createDate: new Date(),
@@ -97,7 +132,7 @@ router.post('/add', async (req, res) => {
         if (error.message === "INVALIDOPTIONS") msg = 'Danh sách đáp án phải có đúng 4 lựa chọn!';
         if (error.message === "INVALIDOPTIONSFORMAT") msg = 'Mỗi lựa chọn phải có label và text!';
         if (error.message === "INVALIDCORRECTANSWER") msg = 'Đáp án đúng không khớp với bất kỳ label nào trong các lựa chọn!';
-        
+
         return res.status(400).json({ msg, error: error.message });
     }
 });
@@ -106,24 +141,38 @@ router.post('/add', async (req, res) => {
 router.get('/random/imgonly', async (req, res) => {
     try {
         const questions = await questionCollection.aggregate([
-            { $match: { questionImg: { $ne: null } } }, // Lọc câu hỏi có hình ảnh
-            { $sample: { size: 10 } } // Lấy ngẫu nhiên 5 câu hỏi
+            { $match: { questionImg: { $ne: null } } },
+            { $sample: { size: 10 } }
         ]).toArray();
 
         if (questions.length === 0) {
             throw new Error("NOQUESTIONFOUND");
         }
-        res.json(questions);
+
+        // Append full Firebase public URL if not already a full URL
+        const bucketName = 'my-first-project-ecf2b.appspot.com'; // replace with your actual bucket name
+        const updatedQuestions = questions.map(q => ({
+            ...q,
+            questionImg: q.questionImg.startsWith('http')
+                ? q.questionImg
+                : `https://storage.googleapis.com/${bucketName}/${q.questionImg}`
+        }));
+
+        res.json(updatedQuestions);
 
     } catch (error) {
         let msg = 'Lỗi server không rõ!';
         let status = 400;
 
-        if (error.message === "NOQUESTIONFOUND") msg = '!!!Không tìm thấy câu hỏi nào có hình ảnh!!!'; status = 404;
+        if (error.message === "NOQUESTIONFOUND") {
+            msg = '!!!Không tìm thấy câu hỏi nào có hình ảnh!!!';
+            status = 404;
+        }
 
         return res.status(status).json({ msg, error: error.message });
     }
 });
+
 
 
 // Lấy random 5 câu hỏi cùng level

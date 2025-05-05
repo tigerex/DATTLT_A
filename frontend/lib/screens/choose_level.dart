@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../services/question_service.dart';
 import '../services/auth_service.dart';
 import './login.dart';
+import './home22.dart';
 
 import './start.dart';
 
@@ -11,13 +12,24 @@ class ChooseLevelScreen extends StatefulWidget {
   final String userID;
   final String username;
 
-  const ChooseLevelScreen({super.key, required this.userID, required this.username});
+  const ChooseLevelScreen({
+    super.key,
+    required this.userID,
+    required this.username,
+  });
 
   @override
   State<ChooseLevelScreen> createState() => _ChooseLevelScreenState();
 }
 
 class _ChooseLevelScreenState extends State<ChooseLevelScreen> {
+  void goToBack() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomeScreen22()),
+    );
+  }
+
   void showLogoutAlert(BuildContext context) {
     showDialog(
       context: context,
@@ -58,14 +70,31 @@ class _ChooseLevelScreenState extends State<ChooseLevelScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () => showLogoutAlert(context),
-              tooltip: "Logout",
+            Align(
+              heightFactor: 1,
+              alignment: Alignment.topLeft,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.deepPurple,
+                    ),
+                    onPressed: goToBack, //Mũi tên để lui lại mấy câu hỏi trước
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.logout),
+                    onPressed: () => showLogoutAlert(context),
+                    tooltip: "Logout",
+                  ),
+                ],
+              ),
             ),
+
             const Spacer(),
             SvgPicture.asset(
-              'lib/assets/images/monsterChooseLevel.svg',
+              'assets/monsterChooseLevel.svg',
               height: 80,
             ),
             const SizedBox(height: 24),
@@ -86,7 +115,9 @@ class _ChooseLevelScreenState extends State<ChooseLevelScreen> {
             StartButton(
               text: 'Easy',
               onPressed: () async {
-                final questions = await fetchQuestions('easy');
+                final questions = await QuestionService().fetchQuestions(
+                  'easy',
+                );
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -104,7 +135,9 @@ class _ChooseLevelScreenState extends State<ChooseLevelScreen> {
             StartButton(
               text: 'Medium',
               onPressed: () async {
-                final questions = await fetchQuestions('medium');
+                final questions = await QuestionService().fetchQuestions(
+                  'medium',
+                );
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -122,7 +155,9 @@ class _ChooseLevelScreenState extends State<ChooseLevelScreen> {
             StartButton(
               text: 'Hard',
               onPressed: () async {
-                final questions = await fetchQuestions('hard');
+                final questions = await QuestionService().fetchQuestions(
+                  'hard',
+                );
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -140,7 +175,9 @@ class _ChooseLevelScreenState extends State<ChooseLevelScreen> {
             StartButton(
               text: 'Image Only',
               onPressed: () async {
-                final questions = await fetchQuestions('imgonly');
+                final questions = await QuestionService().fetchQuestions(
+                  'imgonly',
+                );
                 Navigator.push(
                   context,
                   MaterialPageRoute(

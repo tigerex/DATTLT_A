@@ -41,7 +41,7 @@ router.post('/add', async (req, res) => {
 
         const newResult = new Result({
             resultId: new mongoose.Types.ObjectId().toString(), // Tạo ID mới cho kết quả bài kiểm tra
-            userId: new mongoose.Types.ObjectId(userId), // ID người dùng
+            userId: new mongoose.Types.ObjectId(userId).toString(), // ID người dùng
             level: level, // Độ khó bài kiểm tra
             timeTaken: timeTaken, // Thời gian làm bài (tính bằng giây)
             score: score, // Điểm số bài kiểm tra
@@ -64,7 +64,34 @@ router.post('/add', async (req, res) => {
     }
 });
 
-// GET /api/result/rankings?level=easy
+// Lấy danh sách kết quả bài kiểm tra theo UserID
+router.get('/user/:userId', async (req, res) => {
+    const { userId } = req.params; // Lấy ID người dùng từ tham số URL
+    console.log('Requested userId:', userId);
+    try {
+        if (!userId) {
+            throw new Error('MISSINGPARA'); // Kiểm tra xem có thiếu thông tin không
+        }
+
+        // Tìm kiếm kết quả bài kiểm tra theo ID người dùng
+        const results = await Result.find({ userId: userId })
+            .sort({ createdAt: -1 }) // Sắp xếp theo ngày tạo giảm dần
+            .populate('userId', 'displayName')
+            .lean();
+
+        return res.status(200).json(results);
+    } catch (err) {
+        console.error(err);
+        let msg = 'Lỗi server không rõ!';
+        let status = 400;
+
+        if (err.message === 'MISSINGPARA') msg = 'Thiếu thông tin cần thiết!';status = 400;
+
+        return res.status(status).json({ msg, error: err.message });
+    }
+});
+
+// ranking theo độ khó bài kiểm tra
 router.get('/rankings/:level', async (req, res) => {
     const { level } = req.params;// Lấy độ khó từ tham số URL
     const validLevels = ['easy', 'medium', 'hard'];// Danh sách các độ khó hợp lệ
@@ -95,7 +122,7 @@ router.get('/rankings/:level', async (req, res) => {
             score: r.score, // Điểm số bài kiểm tra
             timeTaken: r.timeTaken, // Thời gian làm bài (tính bằng giây)
             level: r.level, // Độ khó bài kiểm tra
-            resultID: r.resultID, // ID kết quả bài kiểm tra
+            resultID: r._id, // ID kết quả bài kiểm tra
             createdAt: r.createdAt, // Ngày tạo kết quả bài kiểm tra
         }));
   
