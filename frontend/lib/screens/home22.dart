@@ -160,7 +160,7 @@ class _HomeScreen22State extends State<HomeScreen22> {
                     ),
                     const Spacer(flex: 2),
                     Text(
-                      'Hi ${userName}',
+                      'Hi $userName',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

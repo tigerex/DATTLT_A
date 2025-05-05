@@ -379,7 +379,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
               Align(
                 alignment: Alignment.bottomRight,
                 child: SvgPicture.asset(
-                  'lib/assets/images/monsterQuestion.svg',
+                  'assets/monsterQuestion.svg',
                   height: 50,
                 ),
               ),

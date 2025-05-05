@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { MongoClient } = require('mongodb');
+const { ObjectId } = require('mongodb');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const Question = require('../models/Question'); // Import model Question
@@ -31,8 +32,8 @@ router.get ('/all', async(req, res) => {
 
 // Tìm kiếm câu hỏi theo id trong MongoDB (for demo)
 router.get('/id/:id', async(req, res) => {
-    const { id } = req.params;
-    const question = await questionCollection.findOne({ questionId: id });
+    const id = new ObjectId(req.params.id); // convert string → ObjectId
+    const question = await questionCollection.findOne({ _id: id });
     if (!question) {
         return res.status(404).json({ message: 'Câu hỏi không tồn tại.' });
     }

@@ -61,7 +61,7 @@ class _FinishScreenState extends State<FinishScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
-                'lib/assets/images/monsterCongrats.svg',
+                'assets/monsterCongrats.svg',
                 height: 150,
               ),
               const SizedBox(height: 10),
