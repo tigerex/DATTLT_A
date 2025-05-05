@@ -11,3 +11,5 @@ admin.initializeApp({
 const bucket = admin.storage().bucket();  // Lấy bucket từ Firebase Storage
 
 module.exports = bucket;
+
+//gsutil cors set cors.json gs://my-first-project-ecf2b.appspot.com
