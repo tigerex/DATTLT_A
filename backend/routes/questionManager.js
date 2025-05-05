@@ -136,6 +136,96 @@ router.post('/add', upload.single('image'), async (req, res) => {
     }
 });
 
+// Cập nhật câu hỏi trong MongoDB
+router.put('/update/:id', upload.single('image'), async (req, res) => {
+    const { id } = req.params;
+    const { level, questionText, options, correctAnswer, maxTime } = req.body;
+    const file = req.file; // file upload từ client
+
+    try {
+        // Check required fields
+        if (!level || !questionText || !options || !correctAnswer || !maxTime) {
+            throw new Error("MISSINGDATA");
+        }
+
+        const parsedOptions = JSON.parse(options);
+
+        if (!Array.isArray(parsedOptions) || parsedOptions.length !== 4) {
+            throw new Error("INVALIDOPTIONS");
+        }
+
+        for (let opt of parsedOptions) {
+            if (!opt.label || !opt.text) {
+                throw new Error("INVALIDOPTIONSFORMAT");
+            }
+        }
+
+        const validLabels = parsedOptions.map(opt => opt.label);
+        if (!validLabels.includes(correctAnswer)) {
+            throw new Error("INVALIDCORRECTANSWER");
+        }
+
+        // Upload to Firebase Storage if image is provided
+        let questionImgUrl = null;
+        if (file) {
+            const fileName = `questions/${uuidv4()}_${file.originalname}`;
+            const blob = bucket.file(fileName);
+            const blobStream = blob.createWriteStream({
+                metadata: {
+                    contentType: file.mimetype,
+                },
+            });
+
+            await new Promise((resolve, reject) => {
+                blobStream.on('error', reject);
+                blobStream.on('finish', resolve);
+                blobStream.end(file.buffer);
+            });
+
+            // Get the public URL
+            await blob.makePublic();
+            questionImgUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+        }
+
+        const updatedQuestion = {
+            level,
+            questionImg: questionImgUrl,
+            questionText,
+            options: parsedOptions,
+            correctAnswer,
+            maxTime,
+            updatedDate: new Date()
+        };
+
+        await questionCollection.updateOne({ questionId: id }, { $set: updatedQuestion });
+        res.status(200).json({ message: 'Câu hỏi đã được cập nhật thành công.' });
+
+    } catch (error) {
+        let msg = 'Lỗi server không rõ!';
+        if (error.message === "MISSINGDATA") msg = 'Thiếu thông tin câu hỏi!';
+        if (error.message === "INVALIDOPTIONS") msg = 'Danh sách đáp án phải có đúng 4 lựa chọn!';
+        if (error.message === "INVALIDOPTIONSFORMAT") msg = 'Mỗi lựa chọn phải có label và text!';
+        if (error.message === "INVALIDCORRECTANSWER") msg = 'Đáp án đúng không khớp với bất kỳ label nào trong các lựa chọn!';
+
+
+        return res.status(400).json({ msg, error: error.message });
+    }
+});
+
+// Xóa câu hỏi trong MongoDB
+router.delete('/delete/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await questionCollection.deleteOne({ questionId: id });
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: 'Câu hỏi không tồn tại.' });
+        }
+        res.status(200).json({ message: 'Câu hỏi đã được xóa thành công.' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Lỗi server không rõ!', error: error.message });
+    }
+});
+
 // Lấy câu hỏi có hình
 router.get('/random/imgonly', async (req, res) => {
     try {

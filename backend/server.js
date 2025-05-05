@@ -39,8 +39,6 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('\n=========Kết nối MongoDB thành công========='))
   .catch(err => console.log('Lỗi kết nối MongoDB', err));
 
-
-
 // Sử dụng các route
 app.use('/api/auth', authRoutes);
 app.use('/api/register', registerRoutes);
