@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+
 // import 'screens/home.dart';
 // import './screens/admin_crud.dart';
 // import './screens/finish.dart';
@@ -9,8 +13,25 @@ import 'screens/home22.dart';
 import 'services/auth_service.dart';
 import 'dart:convert';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: FirebaseOptions(
+        apiKey: "AIzaSyDVLGxK3JJnEAlVRTrjf8XAmMxNtYwC92k",
+        authDomain: "my-first-project-ecf2b.firebaseapp.com",
+        projectId: "my-first-project-ecf2b",
+        storageBucket: "my-first-project-ecf2b.firebasestorage.app",
+        messagingSenderId: "128557703341",
+        appId: "1:128557703341:web:7c54b6e9dd9fe4e50de624"
+      ),
+    );
+  } else {
+    await Firebase.initializeApp();
+  }
+
+  runApp(MyApp());
 }
 
 class SplashScreen extends StatefulWidget {
