@@ -20,7 +20,7 @@ const app = express();
 const dbName = "User"; // Thay đổi tên cơ sở dữ liệu nếu cần
 
 const accessPassword = "Raccoon-1"; // Mật khẩu truy cập MongoDB
-const url = "mongodb+srv://adminM:"+accessPassword+"@usertest.1opu14d.mongodb.net/?retryWrites=true&w=majority&appName=UserTest";
+const url = "mongodb+srv://adminM:"+accessPassword+"@usertest.1opu14d.mongodb.net/"+dbName+"?retryWrites=true&w=majority&appName=UserTest";
 
 const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true }); // Kết nối MongoDB
 const db = client.db(dbName); // Kết nối đến cơ sở dữ liệu
