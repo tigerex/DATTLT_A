@@ -1,6 +1,8 @@
 // lib/screens/finish.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:frontend/screens/home22.dart';
+import '../widgets/start_button.dart';
 import './choose_level.dart';
 import '../models/test_answer.dart';
 import '../models/test_question.dart';
@@ -60,10 +62,7 @@ class _FinishScreenState extends State<FinishScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SvgPicture.asset(
-                'assets/monsterCongrats.svg',
-                height: 150,
-              ),
+              SvgPicture.asset('assets/monsterCongrats.svg', height: 150),
               const SizedBox(height: 10),
               Text(
                 'Great job, ${widget.userName}!',
@@ -170,35 +169,67 @@ class _FinishScreenState extends State<FinishScreen> {
                 style: TextStyle(fontSize: 14, color: Colors.white70),
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFFFFAFA),
-                  foregroundColor: Color(0xFF7F5CFF),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(32),
+
+              // ElevatedButton(
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: Color(0xFFFFFAFA),
+              //     foregroundColor: Color(0xFF7F5CFF),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(32),
+              //     ),
+              //   ),
+              //   onPressed:
+              //       () => Navigator.pushReplacement(
+              //         context,
+              //         MaterialPageRoute(
+              //           builder:
+              //               (context) => ChooseLevelScreen(
+              //                 userID: widget.userID,
+              //                 username: widget.userName,
+              //               ),
+              //         ),
+              //       ),
+              //   child: const Padding(
+              //     padding: EdgeInsets.symmetric(
+              //       horizontal: 24.0,
+              //       vertical: 12.0,
+              //     ),
+              //     child: Text(
+              //       'Take another test',
+              //       style: TextStyle(fontWeight: FontWeight.bold),
+              //     ),
+              //   ),
+              // ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  StartButton(
+                    text: 'Take another test',
+                    onPressed:
+                        () => Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ChooseLevelScreen(
+                                  userID: widget.userID,
+                                  username: widget.userName,
+                                ),
+                          ),
+                        ),
                   ),
-                ),
-                onPressed:
-                    () => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => ChooseLevelScreen(
-                              userID: widget.userID,
-                              username: widget.userName,
-                            ),
-                      ),
-                    ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 24.0,
-                    vertical: 12.0,
+                  SizedBox(width: 5,),
+                  StartButton(
+                    text: 'No, me go home',
+                    onPressed:
+                        () => Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => HomeScreen22(),
+                          ),
+                        ),
                   ),
-                  child: Text(
-                    'Take another test',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
+                ],
               ),
               const SizedBox(height: 20),
             ],

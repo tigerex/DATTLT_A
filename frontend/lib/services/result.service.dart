@@ -8,8 +8,8 @@ class ResultService {
   static String baseUrl = 'http://localhost:5000/api/result';
 
   // GET all results
-  Future<List<Result>> fetchResults() async {
-    final response = await http.get(Uri.parse('$baseUrl/all'));
+  Future<List<Result>> fetchResults(String userId) async {
+    final response = await http.get(Uri.parse('$baseUrl/user/$userId'));
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);

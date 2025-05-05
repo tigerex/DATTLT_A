@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../models/test_question.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import './finish.dart';
+import './home22.dart';
 import '../models/test_answer.dart';
 import '../services/result.service.dart';
 import '../models/test_result.dart';
@@ -49,6 +50,35 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
 
     remainingTime = widget.questions[0].maxTime * 10; // Time tổng của bài test
     startTimer();
+  }
+
+  void cancelTest() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Cancel Test'),
+          content: const Text('Are you sure you want to cancel test?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Close dialog
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen22()),
+                );
+              },
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Hàm đếm thời gian tổng bài test
@@ -209,16 +239,16 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        toolbarHeight: 15,
-        leading: Center(
-          // 👈 Bọc IconButton bằng Center
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: const Icon(Icons.menu, size: 20),
-            // constraints: const BoxConstraints(),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.deepPurple),
+          onPressed: () => cancelTest(),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.menu),
             onPressed: () => openQuestionMenu(context),
           ),
-        ),
+        ],
       ),
 
       body: SingleChildScrollView(

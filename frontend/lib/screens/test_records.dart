@@ -8,7 +8,9 @@ import '../services/question_service.dart';
 import '../widgets/RecordReviewCard.dart';
 
 class TestRecords extends StatefulWidget {
-  const TestRecords({super.key});
+  final String userId;
+
+  const TestRecords({super.key, required this.userId});
 
   @override
   _TestRecordsState createState() => _TestRecordsState();
@@ -33,7 +35,7 @@ class _TestRecordsState extends State<TestRecords> {
   // Load các bài test đã làm ngay khi người dùng vào trang test records
   Future<void> loadResults() async {
     try {
-      final results = await ResultService().fetchResults();
+      final results = await ResultService().fetchResults(widget.userId);
       setState(() {
         records = results; // records là List<Result>
         tempList =
@@ -225,7 +227,7 @@ class _TestRecordsState extends State<TestRecords> {
                 ),
               ],
             ),
-            const SizedBox(height: 15,),
+            const SizedBox(height: 15),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 13.0),
               child: Container(
