@@ -190,6 +190,7 @@ class QuestionFormWidget extends StatefulWidget {
 class _QuestionFormWidgetState extends State<QuestionFormWidget> {
   final _formKey = GlobalKey<FormState>();
 
+  late String _questionId;
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _maxTimeController = TextEditingController();
   List<Options> options = [];
@@ -203,6 +204,7 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
     // Khởi tạo 4 option mặc định
 
     if (q != null) {
+      _questionId = q.questionId!;
       _contentController.text = q.questionText;
       _maxTimeController.text = q.maxTime.toString();
       selectedLevel = q.questionLevel;
@@ -231,10 +233,12 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
     );
   }
 
-  void submit() async {
+  void submit(bool isEdit) async {
+    final submit;
+
     if (_formKey.currentState!.validate() && selectedAnswerIndex != null) {
-      final TestQuestion questionData = new TestQuestion(
-        questionId: null,
+      final TestQuestion questionData = TestQuestion(
+        questionId: isEdit ? _questionId : null,
         questionLevel: selectedLevel,
         questionImg: null,
         questionText: _contentController.text,
@@ -242,7 +246,12 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
         options: options,
         correctAnswerIndex: selectedAnswerIndex ?? 0,
       );
-      final submit = await QuestionService().addQuestion(questionData);
+
+      if (isEdit != true) {
+        submit = await QuestionService().addQuestion(questionData);
+      } else {
+        submit = await QuestionService().editQuestion(questionData);
+      }
 
       if (submit) {
         print('✅ Thành công');
@@ -257,7 +266,11 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Done!'),
-          content: Text('Question added successfully'),
+          content: Text(
+            isEdit
+                ? 'Question edited successfully'
+                : 'Question added successfully',
+          ),
         );
       },
     );
@@ -361,7 +374,9 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
               }),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: submit,
+                onPressed: () {
+                  submit(isEdit);
+                },
                 child: Text(isEdit ? 'Update' : 'Submit'),
               ),
             ],

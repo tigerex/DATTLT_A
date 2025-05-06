@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/test_question.dart';
 
 class QuestionService {
-  final String yourServerIp = '192.168.0.101'; // Thay thế bằng địa chỉ IP
+  final String yourServerIp = '10.106.18.63'; // Thay thế bằng địa chỉ IP
   // final String baseUrl = 'http://$yourServerIp:5000/api';
   final String baseUrl = 'http://localhost:5000/api';
 
@@ -47,19 +47,6 @@ class QuestionService {
   }
 
   Future<bool> addQuestion(TestQuestion question) async {
-    // final response = await http.get(Uri.parse('$baseUrl/question/add'));
-
-    // if (response.statusCode == 200) {
-    //   final List<dynamic> data = jsonDecode(response.body);
-    //   final List<TestQuestion> questions =
-    //       data.map((json) => TestQuestion.fromJson(json)).toList();
-    //   return questions;
-    // } else {
-    //   throw Exception('Failed to add questions');
-    // }
-
-    
-
     final response = await http.post(
       Uri.parse('$baseUrl/question/add'),
       headers: {'Content-Type': 'application/json'},
@@ -68,6 +55,37 @@ class QuestionService {
 
     print(json.encode(question.toJson()));
 
+    if (response.statusCode != 200) {
+      print('Error: ${response.statusCode}');
+      print('Body: ${response.body}');
+    }
+
     return response.statusCode == 200 || response.statusCode == 201;
+  }
+
+  Future<bool> editQuestion(TestQuestion question) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/question/update/${question.questionId}'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(question.toJson()),
+    );
+
+    print(json.encode(question.toJson()));
+
+    return response.statusCode == 200 || response.statusCode == 201;
+  }
+
+  Future<void> deleteQuestion(String id) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/question/delete/$id'),
+    );
+
+    if (response.statusCode == 200) {
+      print("✅ Deleted");
+    } else {
+      print("Haiz, bug again 😒");
+    }
+
+    // return response.statusCode == 200 || response.statusCode == 201;
   }
 }

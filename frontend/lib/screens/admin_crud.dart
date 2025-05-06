@@ -133,9 +133,15 @@ class _AdminCrudScreenState extends State<AdminCrudScreen> {
                     },
                     items:
                         levels.map((level) {
-                          return DropdownMenuItem(value: level, child: Text(level));
+                          return DropdownMenuItem(
+                            value: level,
+                            child: Text(level),
+                          );
                         }).toList(),
-                    style: const TextStyle(color: Color(0xFF3F3D56), fontSize: 12),
+                    style: const TextStyle(
+                      color: Color(0xFF3F3D56),
+                      fontSize: 12,
+                    ),
                     underline: const SizedBox(), // bỏ gạch dưới mặc định
                     dropdownColor: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -149,7 +155,10 @@ class _AdminCrudScreenState extends State<AdminCrudScreen> {
                 itemBuilder: (context, index) {
                   final q = tempList[index];
                   return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     child: ListTile(
                       title: Text(q.questionText),
                       subtitle: Text('Level: ${q.questionLevel}'),
@@ -163,7 +172,8 @@ class _AdminCrudScreenState extends State<AdminCrudScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) => QuestionFormWidget(question: q),
+                                      (context) =>
+                                          QuestionFormWidget(question: q),
                                 ), //QuestionFormWidget ở đây được gọi để SỬA câu hỏi
                               );
                             },
@@ -172,6 +182,7 @@ class _AdminCrudScreenState extends State<AdminCrudScreen> {
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
                               setState(() {
+                                QuestionService().deleteQuestion(q.questionId!);
                                 questions.removeAt(index);
                               });
                             },
