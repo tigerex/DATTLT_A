@@ -1,59 +1,12 @@
-// class TestQuestion {
-//   final String questionId;
-//   final String questionText;
-//   // final String? image;
-//   final int maxTimePerQuestion;
-//   final List<String> options;
-//   final int isCorrectAnswer;
-
-//   TestQuestion({
-//     required this.questionId,
-//     required this.questionText,
-//     // this.image,
-//     required this.maxTimePerQuestion,
-//     required this.options,
-//     required this.isCorrectAnswer,
-//   });
-
-//   factory TestQuestion.fromJson(Map<String, dynamic> json) {
-//     return TestQuestion(
-//       questionId: json['questionId'],
-//       questionText: json['questionText'],
-//       // image: json['image'],
-//       maxTimePerQuestion: json['maxTimePerQuestion'],
-//       options: [
-//         json['option_a'],
-//         json['option_b'],
-//         json['option_c'],
-//         json['option_d'],
-//       ],
-//       isCorrectAnswer: _convertAnswerToIndex(json['isCorrectAnswer']),
-//     );
-//   }
-
-//   static int _convertAnswerToIndex(String key) {
-//     switch (key.toLowerCase()) {
-//       case 'a':
-//         return 0;
-//       case 'b':
-//         return 1;
-//       case 'c':
-//         return 2;
-//       case 'd':
-//         return 3;
-//       default:
-//         return -1;
-//     }
-//   }
-// }
+import 'package:frontend/models/question_option.dart';
 
 class TestQuestion {
-  final String questionId;
+  final String? questionId;
   final String questionLevel;
-  final String questionImg;
+  final String? questionImg;
   final String questionText;
   final int maxTime;
-  final List<String> options;
+  final List<Options> options;
   final int correctAnswerIndex;
 
   TestQuestion({
@@ -66,10 +19,34 @@ class TestQuestion {
     required this.correctAnswerIndex,
   });
 
+  String get correctAnswer {
+    switch (correctAnswerIndex) {
+      case 0:
+        return 'A';
+      case 1:
+        return 'B';
+      case 2:
+        return 'C';
+      case 3:
+        return 'D';
+      default:
+        return 'Not answered';
+    }
+  }
+
+  Map<String, dynamic> toJson() => {
+    "questionId": questionId,
+    "level": questionLevel,
+    "questionText": questionText,
+    "options": options,
+    "correctAnswer": correctAnswer,
+    "maxTime": maxTime,
+  };
+
   factory TestQuestion.fromJson(Map<String, dynamic> json) {
     List<dynamic> optionList = json['options'];
-    List<String> optionTexts =
-        optionList.map((opt) => opt['text'].toString()).toList();
+    // List<String> optionTexts =
+    //     optionList.map((opt) => opt['text'].toString()).toList();
 
     String correctLabel = json['correctAnswer'];
     int correctIndex = optionList.indexWhere(
@@ -82,7 +59,10 @@ class TestQuestion {
       questionImg: json['questionImg'] ?? '', // Cái này có thể null
       questionText: json['questionText'],
       maxTime: json['maxTime'],
-      options: optionTexts,
+      options:
+          (json['options'] as List)
+              .map((item) => Options.fromJson(item as Map<String, dynamic>))
+              .toList(),
       correctAnswerIndex: correctIndex,
     );
   }

@@ -32,4 +32,42 @@ class QuestionService {
       throw Exception('Failed to load question with ID $id');
     }
   }
+
+  Future<List<TestQuestion>> fetchAll() async {
+    final response = await http.get(Uri.parse('$baseUrl/question/all'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      final List<TestQuestion> questions =
+          data.map((json) => TestQuestion.fromJson(json)).toList();
+      return questions;
+    } else {
+      throw Exception('Failed to load questions');
+    }
+  }
+
+  Future<bool> addQuestion(TestQuestion question) async {
+    // final response = await http.get(Uri.parse('$baseUrl/question/add'));
+
+    // if (response.statusCode == 200) {
+    //   final List<dynamic> data = jsonDecode(response.body);
+    //   final List<TestQuestion> questions =
+    //       data.map((json) => TestQuestion.fromJson(json)).toList();
+    //   return questions;
+    // } else {
+    //   throw Exception('Failed to add questions');
+    // }
+
+    
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/question/add'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(question.toJson()),
+    );
+
+    print(json.encode(question.toJson()));
+
+    return response.statusCode == 200 || response.statusCode == 201;
+  }
 }

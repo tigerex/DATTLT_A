@@ -24,25 +24,16 @@ class Result {
   });
 
   String get formattedDateTime {
-    return DateFormat('dd/MM/yyyy HH:mm').format(date!);
+    final vietnamTime = date!.toLocal().add(const Duration(hours: 7));
+    return DateFormat('dd/MM/yyyy HH:mm').format(vietnamTime);
   }
 
-  // factory Result.fromJson(Map<String, dynamic> json) {
-  //   return Result(
-  //     resultId: json['_id'],
-  //     userId: json['userId'],
-  //     level: json['level'],
-  //     timeTaken: json['timeTaken'],
-  //     score: json['score'],
-  //     questions: List<Answer>.from(json['questions']),
-  //     date: DateTime.parse(json['createdAt']),
-  //   );
-  // }
 
   factory Result.fromJson(Map<String, dynamic> json) {
     return Result(
       resultId: json['_id'],
-      userId: json['userId'],
+      userId: '',
+      // userId: json['userId'],
       level: json['level'],
       timeTaken: json['timeTaken'],
       score: json['score'],

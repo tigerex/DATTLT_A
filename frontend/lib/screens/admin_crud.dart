@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import './crud_form.dart';
+import 'package:frontend/models/test_question.dart';
+import 'package:frontend/services/question_service.dart';
+import '../services/auth_service.dart';
+import './question_form.dart';
+import './login.dart';
 
 class AdminCrudScreen extends StatefulWidget {
   const AdminCrudScreen({super.key});
@@ -9,13 +13,74 @@ class AdminCrudScreen extends StatefulWidget {
 }
 
 class _AdminCrudScreenState extends State<AdminCrudScreen> {
-  // Cái List ở dưới là làm tạm để coi giao diện thôi, còn lấy real thì xài service
+  List<TestQuestion> questions = [];
+  List<TestQuestion> tempList =
+      []; //tempList được tạo ra để sử dụng cho hàm applyFilter và applySort bên dưới
+  String selectedLevel = 'All';
+  final List<String> levels = ['All', 'Easy', 'Medium', 'Hard'];
 
-  // Tạm mock danh sách câu hỏi để test giao diện
-  List<Map<String, String>> questions = [
-    {'id': 'q001', 'questionText': 'Annet .... puppies', 'level': 'easy'},
-    {'id': 'q002', 'questionText': 'He .... football', 'level': 'easy'},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    loadQuestions();
+  }
+
+  // Load các bài test đã làm ngay khi người dùng vào trang test records
+  Future<void> loadQuestions() async {
+    try {
+      final results = await QuestionService().fetchAll();
+      setState(() {
+        questions = results; // records là List<Result>
+        tempList = results;
+      });
+    } catch (e) {
+      print("Lỗi khi load kết quả: $e");
+    }
+  }
+
+  void applyFilter() {
+    if (selectedLevel == 'All') {
+      tempList = questions;
+    } else {
+      tempList =
+          questions
+              .where(
+                (r) =>
+                    r.questionLevel.toLowerCase() ==
+                    selectedLevel.toLowerCase(),
+              )
+              .toList();
+    }
+  }
+
+  void showLogoutAlert(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Close dialog
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                AuthService.logout();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,50 +93,98 @@ class _AdminCrudScreenState extends State<AdminCrudScreen> {
             onPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => CrudFormScreen()),
-              );
+                MaterialPageRoute(
+                  builder: (context) => QuestionFormWidget(question: null),
+                ),
+              ); //QuestionFormWidget được gọi để ADD câu hỏi
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => showLogoutAlert(context),
+            tooltip: "Logout",
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: questions.length,
-        itemBuilder: (context, index) {
-          final q = questions[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: ListTile(
-              title: Text(q['questionText'] ?? ''),
-              subtitle: Text('Level: ${q['level']}'),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.orange),
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) =>
-                                  CrudFormScreen(question: questions[index]),
-                        ),
-                      );
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                width: 95,
+                height: 30,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton(
+                    value: selectedLevel,
+                    isDense: true,
+                    isExpanded: true, // để nội dung không bị ép và overflow
+                    onChanged: (value) {
                       setState(() {
-                        questions.removeAt(index);
+                        selectedLevel = value!;
+                        applyFilter();
                       });
                     },
+                    items:
+                        levels.map((level) {
+                          return DropdownMenuItem(value: level, child: Text(level));
+                        }).toList(),
+                    style: const TextStyle(color: Color(0xFF3F3D56), fontSize: 12),
+                    underline: const SizedBox(), // bỏ gạch dưới mặc định
+                    dropdownColor: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ],
+                ),
               ),
             ),
-          );
-        },
+            Expanded(
+              child: ListView.builder(
+                itemCount: tempList.length,
+                itemBuilder: (context, index) {
+                  final q = tempList[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: ListTile(
+                      title: Text(q.questionText),
+                      subtitle: Text('Level: ${q.questionLevel}'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.orange),
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => QuestionFormWidget(question: q),
+                                ), //QuestionFormWidget ở đây được gọi để SỬA câu hỏi
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              setState(() {
+                                questions.removeAt(index);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

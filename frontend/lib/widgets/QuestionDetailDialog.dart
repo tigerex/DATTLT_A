@@ -56,7 +56,7 @@ class QuestionDetailDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${['A', 'B', 'C', 'D'][index]}. ${options[index]}',
+                  '${['A', 'B', 'C', 'D'][index]}. ${options[index].optionText}',
                   style: TextStyle(color: textColor, fontSize: 14),
                 ),
               );

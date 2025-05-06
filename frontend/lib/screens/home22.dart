@@ -119,21 +119,6 @@ class _HomeScreen22State extends State<HomeScreen22> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text("Home"),
-      //   actions: [
-      //     IconButton(
-      //       icon: const Icon(Icons.logout),
-      //       onPressed: () => showLogoutAlert(context),
-      //       tooltip: "Logout",
-      //     ),
-      //     // ElevatedButton(
-      //     //   onPressed: () => showLogoutAlert(context),
-
-      //     //   child: const Text("Logout"),
-      //     // ),
-      //   ],
-      // ),
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -217,7 +202,7 @@ class _HomeScreen22State extends State<HomeScreen22> {
                           () {
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (context) => TestRecords()),
+                              MaterialPageRoute(builder: (context) => TestRecords(userId: userID,)),
                             );
                           },
                         ),
