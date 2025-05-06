@@ -238,7 +238,7 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
 
     if (_formKey.currentState!.validate() && selectedAnswerIndex != null) {
       final TestQuestion questionData = TestQuestion(
-        questionId: isEdit ? _questionId : 'Human1',
+        questionId: isEdit ? _questionId : null,
         questionLevel: selectedLevel,
         questionImg: null,
         questionText: _contentController.text,
