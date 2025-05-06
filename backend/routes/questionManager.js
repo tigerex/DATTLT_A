@@ -140,7 +140,8 @@ router.post('/add', upload.single('image'), async (req, res) => {
 
 // Cập nhật câu hỏi trong MongoDB
 router.put('/update/:id', upload.single('image'), async (req, res) => {
-    const { id } = req.params;
+    // const { id } = req.params;
+    const id = new ObjectId(req.params.id); // convert string → ObjectId
     const { level, questionText, options, correctAnswer, maxTime } = req.body;
     const file = req.file; // file upload từ client
 
@@ -150,7 +151,7 @@ router.put('/update/:id', upload.single('image'), async (req, res) => {
             throw new Error("MISSINGDATA");
         }
 
-        const parsedOptions = JSON.parse(options);
+        const parsedOptions = options;
 
         if (!Array.isArray(parsedOptions) || parsedOptions.length !== 4) {
             throw new Error("INVALIDOPTIONS");
@@ -198,8 +199,8 @@ router.put('/update/:id', upload.single('image'), async (req, res) => {
             maxTime,
             updatedDate: new Date()
         };
-
-        await questionCollection.updateOne({ questionId: id }, { $set: updatedQuestion });
+        await questionCollection.updateOne({ _id: id }, { $set: updatedQuestion });
+        // await questionCollection.updateOne({ questionId: id }, { $set: updatedQuestion });
         res.status(200).json({ message: 'Câu hỏi đã được cập nhật thành công.' });
 
     } catch (error) {
@@ -216,9 +217,9 @@ router.put('/update/:id', upload.single('image'), async (req, res) => {
 
 // Xóa câu hỏi trong MongoDB
 router.delete('/delete/:id', async (req, res) => {
-    const { id } = req.params;
+    const id = new ObjectId(req.params.id); // convert string → ObjectId
     try {
-        const result = await questionCollection.deleteOne({ questionId: id });
+        const result = await questionCollection.deleteOne({ _id: id });
         if (result.deletedCount === 0) {
             return res.status(404).json({ message: 'Câu hỏi không tồn tại.' });
         }

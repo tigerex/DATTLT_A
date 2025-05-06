@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/test_result.dart';
 
 class ResultService {
-  static String yourServerIp = '192.168.0.101'; // Thay thế bằng địa chỉ IP
+  static String yourServerIp = '10.106.18.63'; // Thay thế bằng địa chỉ IP
   // static String baseUrl = 'http://$yourServerIp:5000/api/result';
   static String baseUrl = 'http://localhost:5000/api/result';
 

@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 const questionSchema = new mongoose.Schema(
     {
-        questionId: { type: String, required: true, unique: true },
+        questionId: { type: String},
         level: { type: String, required: true }, // "easy", "medium", "hard"
         questionImg: { type: String, default: null },
         questionText: { type: String, required: true },
