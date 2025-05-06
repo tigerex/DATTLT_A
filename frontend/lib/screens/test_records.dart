@@ -27,8 +27,7 @@ class _TestRecordsState extends State<TestRecords> {
       final results = await ResultService().fetchResults();
       setState(() {
         records = results; // records là List<Result>
-        tempList =
-            results; //Lý do gán cho cả tempList là để hiển thị ban đầu là All
+        tempList = results; //Lý do gán cho cả tempList là để hiển thị ban đầu là All
       });
     } catch (e) {
       print("Lỗi khi load kết quả: $e");
