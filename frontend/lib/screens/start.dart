@@ -148,6 +148,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
     final result = Result(
       resultId: '', // hoặc null
       userId: widget.userID,
+      displayName: widget.username,
       level: widget.questions[0].questionLevel,
       timeTaken: remainingTime,
       score: score,

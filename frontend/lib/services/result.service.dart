@@ -30,13 +30,17 @@ class ResultService {
     return response.statusCode == 200 || response.statusCode == 201;
   }
 
-  // ✅ GET top results (điểm cao nhất)
-  Future<List<Result>> fetchTopResults(int limit) async {
-    final response = await http.get(Uri.parse('$baseUrl/top?limit=$limit'));
+  // GET top results (điểm cao nhất)
+  Future<List<Result>> fetchTopResults(int limit,String level) async {
+    final response = await http.get(Uri.parse('$baseUrl/rankings/$level?limit=$limit'));
+    print("RESPONSE");
+    print(response.body);
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Result.fromJson(json)).toList();
+      List<Result> results = data.map((json) => Result.fromJson(json)).toList();
+
+      return results;
     } else {
       throw Exception('Failed to load top results');
     }

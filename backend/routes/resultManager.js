@@ -120,9 +120,9 @@ router.get('/user/:userId', async (req, res) => {
 
 // ranking theo độ khó bài kiểm tra
 router.get('/rankings/:level', async (req, res) => {
-    const { level } = req.params;// Lấy độ khó từ tham số URL
+    const {level} = req.params;// Lấy độ khó từ tham số URL
+    const limit = parseInt(req.query.limit, 10); // Get limit from query string
     const validLevels = ['easy', 'medium', 'hard'];// Danh sách các độ khó hợp lệ
-    console.log('Requested level:', level);
     try {
         if (!level) {
             throw new Error('MISSINGPARA'); // Kiểm tra xem có thiếu thông tin không
@@ -137,15 +137,29 @@ router.get('/rankings/:level', async (req, res) => {
         // console.log('Found results:', results1);
 
         // Tìm kiếm kết quả bài kiểm tra theo độ khó
-        const results = await Result.find({ level: level })
+        let query = Result.find({ level: level.toLowerCase() })
             .sort({ score: -1, timeTaken: 1 }) // Sắp xếp theo điểm số giảm dần và thời gian làm bài tăng dần
-            .populate('userId', 'displayName')
-            .lean();
+            .populate('userId', 'displayName');
+
+        if (!isNaN(limit)) {
+            query = query.limit(limit); // Giới hạn số lượng kết quả trả về nếu có tham số limit
+        }
+
+        const results = await query.lean(); // Chuyển đổi kết quả thành dạng JSON
+        // const results = await Result.find({ level: level })
+        //     .sort({ score: -1, timeTaken: 1 }) 
+        //     .populate('userId', 'displayName')
+        //     .lean();
+
+        // if (!isNaN(limit) && limit > 0) {
+        //     results = results.limit(limit); 
+        // };
   
         // Phần này là để thêm rank cho mỗi kết quả. Nếu mọi thứ đúng thì mấy bạn chỉ cần truyền theo kiểu list qua phongEnd là được
         const rankedResults = results.map((r, index) => ({
             rank: index + 1, // Thêm rank cho mỗi kết quả
             userId: r.userId, // Thay thế ObjectId bằng thông tin người dùng
+            displayName: r.userId.displayName, // Tên người dùng
             score: r.score, // Điểm số bài kiểm tra
             timeTaken: r.timeTaken, // Thời gian làm bài (tính bằng giây)
             level: r.level, // Độ khó bài kiểm tra
@@ -171,12 +185,12 @@ router.get('/top10', async (req, res) => {
     const level = req.query.level;
 
     const results = await Result.find(level ? { level } : {})
-      .populate('userId', 'name') // lấy tên người dùng
+      .populate('userId', 'displayName') // lấy tên người dùng
       .sort({ score: -1, createdAt: -1 }) // ưu tiên điểm cao, mới hơn
       .limit(10);
 
     const formatted = results.map(r => ({
-      username: r.userId.name,  // cần có trường `name` trong bảng User
+      username: r.userId.displayName,  // cần có trường `name` trong bảng User
       score: r.score,
       total: r.questions.length,
       date: r.createdAt,
