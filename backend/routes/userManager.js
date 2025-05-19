@@ -71,8 +71,6 @@ router.put('/status/:id', async (req, res) => {
   }
 });
 
-
-
 // Tim kiếm người dùng theo tên hiển thị
 router.get('/name/:name', async (req, res) => {
   const { name } = req.params;
@@ -81,6 +79,30 @@ router.get('/name/:name', async (req, res) => {
     return res.status(404).json({ message: 'Người dùng không tồn tại.' });
   }
   res.json(user);
+});
+
+// Update thông tin người dùng theo id
+router.put('/update/:id', async (req, res) => {
+  const id = new ObjectId(req.params.id); // convert string → ObjectId
+  const { displayName, email, phoneNumber, status } = req.body;
+
+  try {
+    const updatedUser = await userCollection.updateOne(
+      { _id: id },
+      { $set: { displayName, email, phoneNumber, status } }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Người dùng không tồn tại.' });
+    }
+
+    else {
+      res.json({ message: 'Cập nhật thông tin thành công.', user: updatedUser });
+    }
+  } catch (error) {
+    console.error('Lỗi khi cập nhật thông tin người dùng:', error);
+    res.status(500).json({ message: 'Lỗi server.' });
+  }
 });
 
 module.exports = router;
