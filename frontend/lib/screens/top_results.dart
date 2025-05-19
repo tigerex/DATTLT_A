@@ -13,8 +13,12 @@ class TopResults extends StatefulWidget {
 
 class _TopResultsState extends State<TopResults> {
   List<Result> topResults = [];
-  String selectedLevel = 'All';
-  final List<String> levels = ['All', 'Easy', 'Medium', 'Hard'];
+  String selectedLevel = 'Easy';
+  int selectedLimit = 10;
+  final List<String> levels = ['Easy', 'Medium', 'Hard'];
+  final List<int> limits = [5, 10, 20, 50];
+  bool isLoading = false;
+  String? errorMsg;
 
   @override
   void initState() {
@@ -23,31 +27,43 @@ class _TopResultsState extends State<TopResults> {
   }
 
   Future<void> loadTopResults() async {
-    try {
-      final results = await ResultService().fetchResults(widget.userId);
+    setState(() {
+      isLoading = true;
+      errorMsg = null;
+    });
 
-      // Lọc và sắp xếp điểm cao nhất, lấy top 10
-      results.sort((a, b) => b.score.compareTo(a.score));
+    try {
+      final levelParam = selectedLevel.toLowerCase();
+
+      final results = await ResultService().fetchTopResults(selectedLimit, levelParam);
+
       setState(() {
-        topResults = results.take(10).toList();
+        topResults = results; // directly assign the list of Result objects
       });
     } catch (e) {
-      print("Lỗi khi load top result: $e");
+      setState(() {
+        errorMsg = 'Error loading results: $e';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
-  void applyFilter(String level) async {
-    final results = await ResultService().fetchResults(widget.userId);
-    List<Result> filtered = level == 'All'
-        ? results
-        : results.where((r) => r.level.toLowerCase() == level.toLowerCase()).toList();
 
-    filtered.sort((a, b) => b.score.compareTo(a.score));
-
+  void applyFilter(String level) {
     setState(() {
       selectedLevel = level;
-      topResults = filtered.take(10).toList();
     });
+    loadTopResults();
+  }
+
+  void changeLimit(int newLimit) {
+    setState(() {
+      selectedLimit = newLimit;
+    });
+    loadTopResults();
   }
 
   @override
@@ -56,88 +72,169 @@ class _TopResultsState extends State<TopResults> {
       backgroundColor: Color(0xFF2D2D3A),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              const SizedBox(height: 10),
-              Text(
-                'Top 10',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                width: 100,
-                height: 32,
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: selectedLevel,
-                    onChanged: (value) {
-                      if (value != null) {
-                        applyFilter(value);
-                      }
-                    },
-                    items: levels
-                        .map((level) => DropdownMenuItem(
-                              value: level,
-                              child: Text(level),
-                            ))
-                        .toList(),
+              // Header row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Top Results',
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
+                  IconButton(
+                    icon: Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
               ),
+              const SizedBox(height: 10),
+
+              // Level & limit filters
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Level dropdown
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: selectedLevel,
+                        icon: Icon(Icons.arrow_drop_down),
+                        onChanged: (value) {
+                          if (value != null) {
+                            applyFilter(value);
+                          }
+                        },
+                        items: levels.map((level) {
+                          return DropdownMenuItem(
+                            value: level,
+                            child: Text(level),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+
+                  // Limit dropdown
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<int>(
+                        value: selectedLimit,
+                        icon: Icon(Icons.arrow_drop_down),
+                        onChanged: (value) {
+                          if (value != null) {
+                            changeLimit(value);
+                          }
+                        },
+                        items: limits.map((limit) {
+                          return DropdownMenuItem(
+                            value: limit,
+                            child: Text('Top $limit'),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
               const SizedBox(height: 15),
+
+              // Results
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(20),
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [Color(0xFF9D90FF), Colors.white],
                     ),
                   ),
-                  child: ListView.builder(
-                    itemCount: topResults.length,
-                    itemBuilder: (context, index) {
-                      final result = topResults[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Color(0xFF6E57E0),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: ListTile(
-                            leading: Text(
-                              '${index + 1}.',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                  child: isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : errorMsg != null
+                          ? Center(
+                              child: Text(
+                                errorMsg!,
+                                style: TextStyle(color: Colors.red, fontSize: 16),
+                                textAlign: TextAlign.center,
                               ),
+                            )
+                          : ListView.separated(
+                              itemCount: topResults.length,
+                              separatorBuilder: (_, __) => SizedBox(height: 10),
+                              itemBuilder: (context, index) {
+                                final result = topResults[index];
+
+                                Widget leadingIcon;
+                                if (index == 0) {
+                                  leadingIcon = Icon(Icons.emoji_events, color: Colors.amber, size: 30); // 🥇
+                                } else if (index == 1) {
+                                  leadingIcon = Icon(Icons.emoji_events, color: Colors.grey, size: 30); // 🥈
+                                } else if (index == 2) {
+                                  leadingIcon = Icon(Icons.emoji_events, color: Colors.brown, size: 30); // 🥉
+                                } else {
+                                  leadingIcon = CircleAvatar(
+                                    backgroundColor: Colors.white24,
+                                    child: Text(
+                                      '${index + 1}',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF6E57E0),
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black26,
+                                        blurRadius: 5,
+                                        offset: Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ListTile(
+                                    leading: leadingIcon,
+                                    title: Text(
+                                      result.displayName,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      '${result.score}/10 • ${result.formattedDateTime}',
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                            title: Text(
-                              result.username ?? 'Unknown',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            subtitle: Text(
-                              '${result.score}/10   |   ${result.formattedDateTime}',
-                              style: TextStyle(color: Colors.white70, fontSize: 12),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
                 ),
               ),
             ],
