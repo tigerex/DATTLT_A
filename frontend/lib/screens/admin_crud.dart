@@ -4,6 +4,7 @@ import 'package:frontend/services/question_service.dart';
 import '../services/auth_service.dart';
 import './question_form.dart';
 import './login.dart';
+import './manage_accounts.dart';
 
 class AdminCrudScreen extends StatefulWidget {
   const AdminCrudScreen({super.key});
@@ -82,23 +83,55 @@ class _AdminCrudScreenState extends State<AdminCrudScreen> {
     );
   }
 
+  void deleteQuesAlert(BuildContext context, String qId, int index) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Question'),
+          content: const Text('Are you sure you want to delete this question?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Close dialog
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                setState(() {
+                  QuestionService().deleteQuestion(qId);
+                  questions.removeAt(index);
+                });
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent user from closing it manually
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Done!'),
+          content: Text('Question deleted successfully'),
+        );
+      },
+    );
+
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.of(context).pop(); // Close the dialog
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manage Questions'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => QuestionFormWidget(question: null),
-                ),
-              ); //QuestionFormWidget được gọi để ADD câu hỏi
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => showLogoutAlert(context),
@@ -112,41 +145,75 @@ class _AdminCrudScreenState extends State<AdminCrudScreen> {
           children: [
             Align(
               alignment: Alignment.centerRight,
-              child: Container(
-                width: 95,
-                height: 30,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton(
-                    value: selectedLevel,
-                    isDense: true,
-                    isExpanded: true, // để nội dung không bị ép và overflow
-                    onChanged: (value) {
-                      setState(() {
-                        selectedLevel = value!;
-                        applyFilter();
-                      });
-                    },
-                    items:
-                        levels.map((level) {
-                          return DropdownMenuItem(
-                            value: level,
-                            child: Text(level),
-                          );
-                        }).toList(),
-                    style: const TextStyle(
-                      color: Color(0xFF3F3D56),
-                      fontSize: 12,
-                    ),
-                    underline: const SizedBox(), // bỏ gạch dưới mặc định
-                    dropdownColor: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                      icon: const Icon(Icons.manage_accounts),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ManageAccounts(),
+                          ),
+                        ); //QuestionFormWidget được gọi để ADD câu hỏi
+                      },
+                      tooltip: "Manage Accounts",
                   ),
-                ),
+                  SizedBox(width: 20,),
+                  IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => QuestionFormWidget(question: null),
+                          ),
+                        ); //QuestionFormWidget được gọi để ADD câu hỏi
+                      },
+                      tooltip: "Add Question",
+                  ),
+                  SizedBox(width: 8,),
+                  Container(
+                    width: 95,
+                    height: 30,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton(
+                        value: selectedLevel,
+                        isDense: true,
+                        isExpanded: true, // để nội dung không bị ép và overflow
+                        onChanged: (value) {
+                          setState(() {
+                            selectedLevel = value!;
+                            applyFilter();
+                          });
+                        },
+                        items:
+                            levels.map((level) {
+                              return DropdownMenuItem(
+                                value: level,
+                                child: Text(level),
+                              );
+                            }).toList(),
+                        style: const TextStyle(
+                          color: Color(0xFF3F3D56),
+                          fontSize: 12,
+                        ),
+                        underline: const SizedBox(), // bỏ gạch dưới mặc định
+                        dropdownColor: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             Expanded(
@@ -177,15 +244,14 @@ class _AdminCrudScreenState extends State<AdminCrudScreen> {
                                 ), //QuestionFormWidget ở đây được gọi để SỬA câu hỏi
                               );
                             },
+                            tooltip: "Edit Question",
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
-                              setState(() {
-                                QuestionService().deleteQuestion(q.questionId!);
-                                questions.removeAt(index);
-                              });
+                              deleteQuesAlert(context, q.questionId!, index);
                             },
+                            tooltip: "Delete Question",
                           ),
                         ],
                       ),

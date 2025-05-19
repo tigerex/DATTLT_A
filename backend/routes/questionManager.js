@@ -66,8 +66,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
             throw new Error("MISSINGDATA");
         }
 
-        const parsedOptions = options;
-        // const parsedOptions = JSON.parse(options);
+        const parsedOptions = JSON.parse(options);
 
         if (!Array.isArray(parsedOptions) || parsedOptions.length !== 4) {
             throw new Error("INVALIDOPTIONS");
@@ -119,7 +118,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
             questionText,
             options: parsedOptions,
             correctAnswer,
-            maxTime,
+            maxTime: parseInt(maxTime),
             createDate: new Date(),
             updatedDate: new Date()
         };

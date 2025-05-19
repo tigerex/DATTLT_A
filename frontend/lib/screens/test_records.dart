@@ -5,7 +5,7 @@ import '../models/test_question.dart';
 import './home22.dart';
 import '../services/result.service.dart';
 import '../services/question_service.dart';
-import '../widgets/RecordReviewCard.dart';
+import 'RecordReview.dart';
 
 class TestRecords extends StatefulWidget {
   final String userId;
@@ -24,7 +24,7 @@ class _TestRecordsState extends State<TestRecords> {
   String selectedLevel = 'All';
   final List<String> levels = ['All', 'Easy', 'Medium', 'Hard'];
 
-  late String selectedSortOption;
+  late String selectedSortOption = '';
 
   @override
   void initState() {
@@ -88,27 +88,39 @@ class _TestRecordsState extends State<TestRecords> {
       detailedQuestions.add(question);
     }
 
-    showDialog(
-      context: context,
-      builder:
-          (_) => Dialog(
-            child: SizedBox(
-              height: 400,
-              width: double.maxFinite,
-              child: ListView.builder(
-                padding: EdgeInsets.all(20),
-                itemCount: detailedQuestions.length,
-                itemBuilder: (context, index) {
-                  return RecordReviewCard(
-                    question: detailedQuestions[index],
-                    answer: record.questions[index],
-                    index: index,
-                  );
-                },
-              ),
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => RecordReview(
+              question: detailedQuestions,
+              answer: record.questions,
+              userId: widget.userId,
             ),
-          ),
+      ),
     );
+
+    // showDialog(
+    //   context: context,
+    //   builder:
+    //       (_) => Dialog(
+    //         child: SizedBox(
+    //           height: 400,
+    //           width: double.maxFinite,
+    //           child: ListView.builder(
+    //             padding: EdgeInsets.all(20),
+    //             itemCount: detailedQuestions.length,
+    //             itemBuilder: (context, index) {
+    //               return RecordReviewCard(
+    //                 question: detailedQuestions[index],
+    //                 answer: record.questions[index],
+    //                 index: index,
+    //               );
+    //             },
+    //           ),
+    //         ),
+    //       ),
+    // );
   }
 
   @override
@@ -136,7 +148,7 @@ class _TestRecordsState extends State<TestRecords> {
               alignment: Alignment.topLeft,
               child: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Color(0xFFFFFAFA)),
-                onPressed: goToBack, //Mũi tên để lui lại mấy câu hỏi trước
+                onPressed: goToBack, //Mũi tên để lui lại trang home
               ),
             ),
             Row(
@@ -205,21 +217,69 @@ class _TestRecordsState extends State<TestRecords> {
                       },
                       itemBuilder:
                           (context) => [
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'score_asc',
-                              child: Text('Sort by score ↑'),
+                              child: Row(
+                                children: [
+                                  Text('Sort by score ↑'),
+                                  SizedBox(width: 8),
+                                  Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: selectedSortOption == 'score_asc'
+                                        ? Colors.black
+                                        : Colors.transparent,
+                                  ),
+                                ],
+                              ),
                             ),
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'score_desc',
-                              child: Text('Sort by score ↓'),
+                              child: Row(
+                                children: [
+                                  Text('Sort by score ↓'),
+                                  SizedBox(width: 8),
+                                  Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: selectedSortOption == 'score_desc'
+                                        ? Colors.black
+                                        : Colors.transparent,
+                                  ),
+                                ],
+                              ),
                             ),
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'date_asc',
-                              child: Text('Sort by date ↑'),
+                              child: Row(
+                                children: [
+                                  Text('Sort by date ↑'),
+                                  SizedBox(width: 8),
+                                  Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: selectedSortOption == 'date_asc'
+                                        ? Colors.black
+                                        : Colors.transparent,
+                                  ),
+                                ],
+                              ),
                             ),
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'date_desc',
-                              child: Text('Sort by date ↓'),
+                              child: Row(
+                                children: [
+                                  Text('Sort by date ↓'),
+                                  SizedBox(width: 8),
+                                  Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: selectedSortOption == 'date_desc'
+                                        ? Colors.black
+                                        : Colors.transparent,
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                     ),

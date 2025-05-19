@@ -64,6 +64,33 @@ router.post('/add', async (req, res) => {
     }
 });
 
+// Xóa kết quả bài kiểm tra theo ID
+router.delete('/delete/:id', async (req, res) => {
+    const { id } = req.params; // Lấy ID từ tham số URL
+    console.log('Requested ID:', id);
+    try {
+        if (!id) {
+            throw new Error('MISSINGPARA'); // Kiểm tra xem có thiếu thông tin không
+        }
+
+        // Tìm và xóa kết quả bài kiểm tra theo ID
+        const result = await Result.findByIdAndDelete(id);
+        if (!result) {
+            throw new Error('INVALIDID'); // Không tìm thấy kết quả bài kiểm tra với ID này
+        }
+        res.status(200).json({ message: 'Kết quả bài kiểm tra đã được xóa thành công!', result });
+
+    } catch (err) {
+        let msg = 'Lỗi server không rõ!';
+        let status = 400;
+
+        if (err.message === 'MISSINGPARA') msg = 'Thiếu thông tin cần thiết!';status = 400;
+        if (err.message === 'INVALIDID') msg = 'Không tìm thấy kết quả bài kiểm tra với ID này!';status = 400;
+
+        return res.status(status).json({ msg, error: err.message });
+    }
+});
+
 // Lấy danh sách kết quả bài kiểm tra theo UserID
 router.get('/user/:userId', async (req, res) => {
     const { userId } = req.params; // Lấy ID người dùng từ tham số URL
