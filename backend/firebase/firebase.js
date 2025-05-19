@@ -1,7 +1,7 @@
 const admin = require('firebase-admin');
 
 // TUYỆT ĐỐI KHÔNG PUSH CÁI NÀY LÊN GITHUB
-const serviceAccount = require('./my-first-project-ecf2b-firebase-adminsdk-zk4xt-7c74378944.json'); // Đường dẫn đến tệp JSON chứa thông tin xác thực Firebase Admin SDK
+const serviceAccount = require('./my-first-project-ecf2b-firebase-adminsdk-zk4xt-d7a61894ae.json'); // Đường dẫn đến tệp JSON chứa thông tin xác thực Firebase Admin SDK
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),

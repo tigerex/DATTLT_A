@@ -61,7 +61,7 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
   }
 
   void submit(bool isEdit) async {
-    final submit;
+    final bool submit;
 
     if (_formKey.currentState!.validate() && selectedAnswerIndex != null) {
       final TestQuestion questionData = TestQuestion(
