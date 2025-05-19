@@ -33,8 +33,6 @@ class ResultService {
   // GET top results (điểm cao nhất)
   Future<List<Result>> fetchTopResults(int limit,String level) async {
     final response = await http.get(Uri.parse('$baseUrl/rankings/$level?limit=$limit'));
-    print("RESPONSE");
-    print(response.body);
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
