@@ -7,6 +7,7 @@ import '../services/auth_service.dart';
 import 'dart:convert';
 import './login.dart';
 import './test_records.dart';
+import './top_results.dart';
 
 class HomeScreen22 extends StatefulWidget {
   // final String userID;
@@ -102,12 +103,7 @@ class _HomeScreen22State extends State<HomeScreen22> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          
-          Image.asset(
-            iconPath,
-            width: 36,
-            height: 36,
-            fit: BoxFit.contain,),
+          Image.asset(iconPath, width: 36, height: 36, fit: BoxFit.contain),
 
           const SizedBox(height: 4),
           Text(label, style: const TextStyle(fontSize: 12)),
@@ -173,10 +169,7 @@ class _HomeScreen22State extends State<HomeScreen22> {
                       style: TextStyle(fontSize: 16, color: Color(0xFFFFFAFA)),
                     ),
                     const Spacer(),
-                    SvgPicture.asset(
-                      'assets/monsterDonut.svg',
-                      height: 120,
-                    ),
+                    SvgPicture.asset('assets/monsterDonut.svg', height: 120),
                     const Spacer(),
                     StartButton(
                       text: 'Start now',
@@ -202,23 +195,29 @@ class _HomeScreen22State extends State<HomeScreen22> {
                           () {
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (context) => TestRecords(userId: userID,)),
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => TestRecords(userId: userID),
+                              ),
                             );
                           },
                         ),
                         buildBottomNavButton(
-                          "Top 10",
-                          "assets/top10.png",
-                          () {
-                            Navigator.pushNamed(context, '/top10'); 
-                          },//Khi có page top10 thì sẽ sửa code chỗ này
-                        ),
+                          "Top 10", 
+                          "assets/top10.png", () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TopResults(userId: userID),
+                            ),
+                          );
+                        }),
                         buildBottomNavButton(
                           "Account",
                           "assets/account.png",
                           () {
                             Navigator.pushNamed(context, '/account');
-                          },//Khi có page account thì sẽ sửa code chỗ này
+                          }, //Khi có page account thì sẽ sửa code chỗ này
                         ),
                       ],
                     ),

@@ -45,6 +45,8 @@ class Result {
     );
   }
 
+  get username => null;
+
   Map<String, dynamic> toJson() {
     return {
       // 'resultId': resultId,

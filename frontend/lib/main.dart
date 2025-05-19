@@ -118,6 +118,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -130,3 +131,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

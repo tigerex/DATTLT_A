@@ -139,4 +139,27 @@ router.get('/rankings/:level', async (req, res) => {
     }
 });
 
+router.get('/top10', async (req, res) => {
+  try {
+    const level = req.query.level;
+
+    const results = await Result.find(level ? { level } : {})
+      .populate('userId', 'name') // lấy tên người dùng
+      .sort({ score: -1, createdAt: -1 }) // ưu tiên điểm cao, mới hơn
+      .limit(10);
+
+    const formatted = results.map(r => ({
+      username: r.userId.name,  // cần có trường `name` trong bảng User
+      score: r.score,
+      total: r.questions.length,
+      date: r.createdAt,
+    }));
+
+    res.status(200).json(formatted);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
