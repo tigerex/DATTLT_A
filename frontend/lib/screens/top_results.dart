@@ -66,10 +66,17 @@ class _TopResultsState extends State<TopResults> {
     loadTopResults();
   }
 
+  String _formatDuration(int seconds) {
+  final minutes = seconds ~/ 60;
+  final remainingSeconds = seconds % 60;
+  return '${minutes}m ${remainingSeconds}s';
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF2D2D3A),
+      backgroundColor: Color.fromARGB(255, 29, 18, 58),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -192,7 +199,7 @@ class _TopResultsState extends State<TopResults> {
                                   leadingIcon = Icon(Icons.emoji_events, color: Colors.brown, size: 30); // 🥉
                                 } else {
                                   leadingIcon = CircleAvatar(
-                                    backgroundColor: Colors.white24,
+                                    backgroundColor: const Color.fromARGB(73, 255, 255, 255),
                                     child: Text(
                                       '${index + 1}',
                                       style: TextStyle(
@@ -205,7 +212,7 @@ class _TopResultsState extends State<TopResults> {
 
                                 return Container(
                                   decoration: BoxDecoration(
-                                    color: Color(0xFF6E57E0),
+                                    color: Color.fromARGB(255, 113, 98, 179),
                                     borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
@@ -225,12 +232,43 @@ class _TopResultsState extends State<TopResults> {
                                       ),
                                     ),
                                     subtitle: Text(
-                                      '${result.score}/10 • ${result.formattedDateTime}',
+                                      result.formattedDateTime,
                                       style: TextStyle(
                                         color: Colors.white70,
                                         fontSize: 12,
                                       ),
                                     ),
+                                    trailing: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          '${result.score}/10',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          _formatDuration(result.timeTaken),
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    onTap: () {
+                                      // Handle tap event
+                                      Navigator.pushNamed(
+                                        context,
+                                        '/result_detail',
+                                        arguments: result,
+                                      );
+                                    },
+
                                   ),
                                 );
                               },

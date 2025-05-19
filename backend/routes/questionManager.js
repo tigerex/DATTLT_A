@@ -272,7 +272,7 @@ router.get('/random/:level', async (req, res) => {
     try {
         const questions = await questionCollection.aggregate([
             { $match: { level: level } },
-            { $sample: { size: 10 } } // Lấy ngẫu nhiên 5 câu hỏi
+            { $sample: { size: 20 } } // Lấy ngẫu nhiên 5 câu hỏi
         ]).toArray();
 
         if (questions.length === 0) {
