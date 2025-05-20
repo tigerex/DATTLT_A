@@ -84,6 +84,8 @@ class _AdminCrudScreenState extends State<AdminCrudScreen> {
   }
 
   void deleteQuesAlert(BuildContext context, String qId, int index) {
+    bool isDeleted = false; // Flag to check if the question is deleted
+
     showDialog(
       context: context,
       builder: (context) {
@@ -101,6 +103,7 @@ class _AdminCrudScreenState extends State<AdminCrudScreen> {
                 setState(() {
                   QuestionService().deleteQuestion(qId);
                   questions.removeAt(index);
+                  isDeleted = true; // Set the flag to true
                 });
               },
               child: const Text('Delete'),
@@ -110,20 +113,14 @@ class _AdminCrudScreenState extends State<AdminCrudScreen> {
       },
     );
 
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent user from closing it manually
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Done!'),
-          content: Text('Question deleted successfully'),
-        );
-      },
-    );
-
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pop(); // Close the dialog
-    });
+    if (isDeleted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Question deleted successfully!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override

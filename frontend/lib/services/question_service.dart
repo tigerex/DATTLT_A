@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 import '../models/test_question.dart';
 
 class QuestionService {
-  final String yourServerIp = '10.106.18.63'; // Thay thế bằng địa chỉ IP
-  // final String baseUrl = 'http://$yourServerIp:5000/api';
-  final String baseUrl = 'http://localhost:5000/api';
+  static String yourServerIp = '10.106.19.44'; // Thay thế bằng địa chỉ IP
+  final String baseUrl = 'http://$yourServerIp:5000/api';
+  // final String baseUrl = 'http://localhost:5000/api';
 
   Future<List<TestQuestion>> fetchQuestions(String level) async {
     final response = await http.get(
