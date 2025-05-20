@@ -16,7 +16,7 @@ class _TopResultsState extends State<TopResults> {
   String selectedLevel = 'Easy';
   int selectedLimit = 10;
   final List<String> levels = ['Easy', 'Medium', 'Hard'];
-  final List<int> limits = [5, 10, 20, 50];
+  final List<int> limits = [10, 20, 50];
   bool isLoading = false;
   String? errorMsg;
 
