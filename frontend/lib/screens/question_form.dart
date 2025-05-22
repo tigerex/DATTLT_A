@@ -3,6 +3,11 @@ import 'package:frontend/models/question_option.dart';
 import 'package:frontend/models/test_question.dart';
 import 'package:frontend/screens/admin_crud.dart';
 import '../services/question_service.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 
 class QuestionFormWidget extends StatefulWidget {
   final TestQuestion? question;
@@ -19,9 +24,33 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
   final TextEditingController _questionImg = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _maxTimeController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
   List<Options> options = [];
   String selectedLevel = 'easy';
   int? selectedAnswerIndex;
+  File? _imageFile;       // Dùng để lưu trữ ảnh trên Android
+  Uint8List? _webImage;   // Dùng để lưu trữ ảnh trên web
+
+  // Hàm để chọn ảnh từ local
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      final bytes = await pickedFile.readAsBytes();
+      setState(() {
+        // Nếu đang chạy trên web, lưu trữ ảnh dưới dạng Uint8List
+        if (kIsWeb) {
+          _webImage = bytes;
+          _questionImg.text = pickedFile.name; // Tên file trên web
+        } 
+        // Nếu không phải web, lưu trữ ảnh dưới dạng File
+        else {
+          _imageFile = File(pickedFile.path);
+          _questionImg.text = pickedFile.path;
+        }
+      });
+    }
+  }
+
 
   @override
   void initState() {
@@ -30,13 +59,13 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
     // Khởi tạo 4 option mặc định
 
     if (q != null) {
-      _questionId.text = q.questionId!;
-      _questionImg.text = q.questionImg!;
-      _contentController.text = q.questionText;
-      _maxTimeController.text = q.maxTime.toString();
-      selectedLevel = q.questionLevel;
-      selectedAnswerIndex = q.correctAnswerIndex;
-      options =
+      _questionId.text = q.questionId!;                 // Có thể null
+      _questionImg.text = q.questionImg!;               // Có thể null
+      _contentController.text = q.questionText;         // Không thể null
+      _maxTimeController.text = q.maxTime.toString();   // Không thể null
+      selectedLevel = q.questionLevel;                  // Không thể null
+      selectedAnswerIndex = q.correctAnswerIndex;       // Không thể null
+      options =                                         // Danh sách, không thể null
           q.options
               .map(
                 (opt) => Options(
@@ -62,7 +91,6 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
 
   void submit(bool isEdit) async {
     final bool submit;
-
     if (_formKey.currentState!.validate() && selectedAnswerIndex != null) {
       final TestQuestion questionData = TestQuestion(
         // questionId: isEdit ? _questionId : null,
@@ -77,9 +105,9 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
       );
 
       if (isEdit != true) {
-        submit = await QuestionService().addQuestion(questionData);
+        submit = await QuestionService().addQuestion(questionData,imageFile: _imageFile,webImageBytes: _webImage,webImageName: _questionImg.text,);
       } else {
-        submit = await QuestionService().editQuestion(questionData);
+        submit = await QuestionService().editQuestion(questionData,imageFile: _imageFile,webImageBytes: _webImage,webImageName: _questionImg.text,);
       }
 
       if (submit) {
@@ -165,12 +193,35 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
                 decoration: const InputDecoration(labelText: 'Level'),
               ),
               const SizedBox(height: 8),
-              TextFormField(
-                controller: _questionImg,
-                decoration: const InputDecoration(
-                  labelText: 'Question Image URL (optional)',
-                ),
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.image),
+                    label: const Text("Pick Image"),
+                    onPressed: _pickImage,
+                  ),
+                  const SizedBox(width: 10),
+                  if (kIsWeb && _webImage != null)
+                    SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: Image.memory(_webImage!),
+                    )
+                  else if (!kIsWeb && _imageFile != null)
+                    SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: Image.file(_imageFile!),
+                    )
+                  else if (_questionImg.text.isNotEmpty)
+                    SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: Image.network(_questionImg.text),
+                    ),
+                ],
               ),
+
               const SizedBox(height: 8),
               TextFormField(
                 controller: _maxTimeController,

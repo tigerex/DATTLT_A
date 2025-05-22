@@ -7,8 +7,8 @@ class AuthService {
   // Địa chỉ server của bạn
   // Thay thế 'yourServerIp' bằng địa chỉ IP hoặc tên miền của server
   static String yourServerIp = '10.106.19.44'; // Thay thế bằng địa chỉ IP
-  static String baseUrl = 'http://$yourServerIp:5000/api';
-  // static String baseUrl = 'http://localhost:5000/api';
+  // static String baseUrl = 'http://$yourServerIp:5000/api';
+  static String baseUrl = 'http://localhost:5000/api';
 
   
   static Future<http.Response> getUserInfo() async {

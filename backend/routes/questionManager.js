@@ -8,6 +8,8 @@ const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const Question = require('../models/Question'); // Import model Question
 const bucket = require('../firebase/firebase'); // Import model Bucket
+const { getStorage } = require('firebase-admin/storage');
+const path = require('path');
 
 const app = express();
 const dbName = "User"; // Thay đổi tên cơ sở dữ liệu nếu cần
@@ -57,52 +59,58 @@ router.get('/level/:level', async(req, res) => {
 
 // Them câu hỏi mới vào MongoDB
 router.post('/add', upload.single('image'), async (req, res) => {
-    const { questionId, level, questionText, options, correctAnswer, maxTime } = req.body;
+    const { questionId, level, questionimg, questionText, options, correctAnswer, maxTime } = req.body;
     const file = req.file; // file upload từ client
+    console.log('File upload:', file);
 
     try {
-        // Check required fields
+        // Các yêu cầu bắt buộc
         if (!level || !questionText || !options || !correctAnswer || !maxTime) {
             throw new Error("MISSINGDATA");
         }
 
-        const parsedOptions = JSON.parse(options);
-
+        const parsedOptions = JSON.parse(options); // Parse options từ JSON string sang object
+        // const parsedOptions = options
+        
+        // Kiểm tra định dạng options 
         if (!Array.isArray(parsedOptions) || parsedOptions.length !== 4) {
             throw new Error("INVALIDOPTIONS");
         }
 
+        // Kiểm tra định dạng từng lựa chọn
         for (let opt of parsedOptions) {
             if (!opt.label || !opt.text) {
                 throw new Error("INVALIDOPTIONSFORMAT");
             }
         }
 
+        // Kiểm tra định dạng đáp án đúng
         const validLabels = parsedOptions.map(opt => opt.label);
         if (!validLabels.includes(correctAnswer)) {
             throw new Error("INVALIDCORRECTANSWER");
         }
 
-        // Upload to Firebase Storage if image is provided
+        // Tải ảnh lên Firebase Storage
         let questionImgUrl = null;
         if (file) {
-            const fileName = `questions/${uuidv4()}_${file.originalname}`;
-            const blob = bucket.file(fileName);
-            const blobStream = blob.createWriteStream({
+            const fileName = `questions/${uuidv4()}_${file.originalname}`;  // Tạo tên file theo định dạng uuid + tên file gốc
+            const blob = bucket.file(fileName);                             // Tạo blob từ bucket
+            const blobStream = blob.createWriteStream({                     // Tạo stream để ghi file vào Firebase Storage       
                 metadata: {
                     contentType: file.mimetype,
                 },
             });
 
+            // Ghi file vào Firebase Storage
             await new Promise((resolve, reject) => {
-                blobStream.on('error', reject);
-                blobStream.on('finish', resolve);
-                blobStream.end(file.buffer);
+                blobStream.on('error', reject);     // Bắt lỗi nếu có
+                blobStream.on('finish', resolve);   // Ghi file thành công
+                blobStream.end(file.buffer);        // Kết thúc stream
             });
 
-            // Get the public URL
+            // Lấy URL công khai của file
             await blob.makePublic();
-            questionImgUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+            questionImgUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`; // Theo định dạng URL của Firebase Storage
 
             // const [url] = await blob.getSignedUrl({
             //     action: 'read',
@@ -111,6 +119,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
             // questionImgUrl = url;
         }
 
+        // Tạo đối tượng câu hỏi mới
         const newQuestion = {
             questionId,
             level,
@@ -123,7 +132,9 @@ router.post('/add', upload.single('image'), async (req, res) => {
             updatedDate: new Date()
         };
 
+        // Thêm câu hỏi vào MongoDB
         await questionCollection.insertOne(newQuestion);
+        console.log('Câu hỏi đã được thêm vào MongoDB:', newQuestion);
         res.status(201).json({ message: 'Câu hỏi đã được thêm thành công.' });
 
     } catch (error) {
@@ -139,19 +150,18 @@ router.post('/add', upload.single('image'), async (req, res) => {
 
 // Cập nhật câu hỏi trong MongoDB
 router.put('/update/:id', upload.single('image'), async (req, res) => {
-    // const { id } = req.params;
     const id = new ObjectId(req.params.id); // convert string → ObjectId
     const { level, questionText, options, correctAnswer, maxTime } = req.body;
     const file = req.file; // file upload từ client
 
     try {
-        // Check required fields
+        // Các yêu cầu bắt buộc
         if (!level || !questionText || !options || !correctAnswer || !maxTime) {
             throw new Error("MISSINGDATA");
         }
 
+        // Parse options từ JSON string sang object
         const parsedOptions = options;
-
         if (!Array.isArray(parsedOptions) || parsedOptions.length !== 4) {
             throw new Error("INVALIDOPTIONS");
         }
@@ -167,8 +177,28 @@ router.put('/update/:id', upload.single('image'), async (req, res) => {
             throw new Error("INVALIDCORRECTANSWER");
         }
 
-        // Upload to Firebase Storage if image is provided
         let questionImgUrl = null;
+
+        // Step 1: Fetch existing question
+        const existingQuestion = await questionCollection.findOne({ _id: id });
+
+        // Step 2: If new image is provided and old image exists, delete old image from Firebase
+        if (file && existingQuestion && existingQuestion.questionImg) {
+            const storage = getStorage();
+            const oldUrl = existingQuestion.questionImg;
+
+            // Extract filename from the URL
+            const filenameStart = oldUrl.indexOf('/questions/');
+            if (filenameStart !== -1) {
+                const filePath = oldUrl.substring(filenameStart + 1); // remove leading slash
+                const oldFile = storage.bucket().file(filePath);
+                await oldFile.delete().catch(err => {
+                    console.warn('Could not delete old image:', err.message);
+                });
+            }
+        }
+
+        // Step 3: Upload new image if present
         if (file) {
             const fileName = `questions/${uuidv4()}_${file.originalname}`;
             const blob = bucket.file(fileName);
@@ -184,9 +214,11 @@ router.put('/update/:id', upload.single('image'), async (req, res) => {
                 blobStream.end(file.buffer);
             });
 
-            // Get the public URL
             await blob.makePublic();
             questionImgUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+        } else {
+            // Keep the old image if no new image is uploaded
+            questionImgUrl = existingQuestion?.questionImg || null;
         }
 
         const updatedQuestion = {
@@ -198,8 +230,9 @@ router.put('/update/:id', upload.single('image'), async (req, res) => {
             maxTime,
             updatedDate: new Date()
         };
+
         await questionCollection.updateOne({ _id: id }, { $set: updatedQuestion });
-        // await questionCollection.updateOne({ questionId: id }, { $set: updatedQuestion });
+
         res.status(200).json({ message: 'Câu hỏi đã được cập nhật thành công.' });
 
     } catch (error) {
@@ -208,7 +241,6 @@ router.put('/update/:id', upload.single('image'), async (req, res) => {
         if (error.message === "INVALIDOPTIONS") msg = 'Danh sách đáp án phải có đúng 4 lựa chọn!';
         if (error.message === "INVALIDOPTIONSFORMAT") msg = 'Mỗi lựa chọn phải có label và text!';
         if (error.message === "INVALIDCORRECTANSWER") msg = 'Đáp án đúng không khớp với bất kỳ label nào trong các lựa chọn!';
-
 
         return res.status(400).json({ msg, error: error.message });
     }

@@ -37,6 +37,7 @@ class TestQuestion {
   Map<String, dynamic> toJson() => {
     "questionId": questionId,
     "level": questionLevel,
+    "questionImg": questionImg,
     "questionText": questionText,
     "options": options,
     "correctAnswer": correctAnswer,
