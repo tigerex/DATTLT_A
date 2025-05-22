@@ -1,11 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../models/test_question.dart';
 
 class QuestionService {
   static String yourServerIp = '10.106.19.44'; // Thay thế bằng địa chỉ IP
-  final String baseUrl = 'http://$yourServerIp:5000/api';
-  // final String baseUrl = 'http://localhost:5000/api';
+  // final String baseUrl = 'http://$yourServerIp:5000/api';
+  final String baseUrl = 'http://localhost:5000/api';
 
   Future<List<TestQuestion>> fetchQuestions(String level) async {
     final response = await http.get(
@@ -46,34 +48,67 @@ class QuestionService {
     }
   }
 
-  Future<bool> addQuestion(TestQuestion question) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/question/add'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(question.toJson()),
-    );
+// File hình để import qua Android dùng File image_picker còn web dùng Uint8List
+Future<bool> addQuestion(TestQuestion question, {File? imageFile,Uint8List? webImageBytes,String? webImageName}) async {
+    final uri = Uri.parse('$baseUrl/question/add');
+    final request = http.MultipartRequest('POST', uri);
 
-    print(json.encode(question.toJson()));
+    // Thêm các trường không phải tệp vào request
+    request.fields['questionId'] = question.questionId ?? '';
+    request.fields['level'] = question.questionLevel;
+    request.fields['questionText'] = question.questionText;
+    request.fields['correctAnswer'] = question.correctAnswer;
+    request.fields['maxTime'] = question.maxTime.toString();
+    request.fields['options'] = json.encode(question.options); // đã đồng bộ với bên backend
 
-    if (response.statusCode != 200) {
-      print('Error: ${response.statusCode}');
-      print('Body: ${response.body}');
+    // Add image
+    // Thêm hình cho Android, check dùm
+    if (imageFile != null) {
+      print("Uploading Android image: ${imageFile.path}");
+      request.files.add(await http.MultipartFile.fromPath('image', imageFile.path)); // gửi tên hình lên server qua Android
+    } 
+    // Thêm hình cho Web, đã check
+    else if (webImageBytes != null && webImageName != null) {
+      print("Uploading Web image: $webImageName");
+      request.files.add(http.MultipartFile.fromBytes('image',webImageBytes,filename: webImageName,)); // gửi tên hình lên server qua web
     }
 
+
+    final streamedResponse = await request.send(); // Gửi request lên server
+    final response = await http.Response.fromStream(streamedResponse); // Nhận response từ server
+
+    return response.statusCode == 200 || response.statusCode == 201; // Kiểm tra mã trạng thái
+  }
+
+
+  Future<bool> editQuestion(TestQuestion question, {File? imageFile,Uint8List? webImageBytes,String? webImageName,}) async {
+    final uri = Uri.parse('$baseUrl/question/update/${question.questionId}');
+    var request = http.MultipartRequest('PUT', uri);
+
+    // Add form fields (non-file fields)
+    question.toJson().forEach((key, value) {
+      request.fields[key] = value.toString();
+    });
+
+    // Add image if available
+    if (imageFile != null) {
+      print("Uploading Android image: ${imageFile.path}");
+      request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+    } else if (webImageBytes != null && webImageName != null) {
+      print("Uploading Web image: $webImageName");
+      request.files.add(http.MultipartFile.fromBytes('image',webImageBytes,filename: webImageName,));
+    }
+
+    // Send the request
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    print('PUT Response: ${response.statusCode}');
+    print('Body: ${response.body}');
+
     return response.statusCode == 200 || response.statusCode == 201;
   }
 
-  Future<bool> editQuestion(TestQuestion question) async {
-    final response = await http.put(
-      Uri.parse('$baseUrl/question/update/${question.questionId}'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(question.toJson()),
-    );
-
-    print(json.encode(question.toJson()));
-
-    return response.statusCode == 200 || response.statusCode == 201;
-  }
 
   Future<void> deleteQuestion(String id) async {
     final response = await http.delete(
