@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-
 class QuestionFormWidget extends StatefulWidget {
   final TestQuestion? question;
   const QuestionFormWidget({super.key, required this.question});
@@ -28,22 +27,18 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
   List<Options> options = [];
   String selectedLevel = 'easy';
   int? selectedAnswerIndex;
-  File? _imageFile;       // Dùng để lưu trữ ảnh trên Android
-  Uint8List? _webImage;   // Dùng để lưu trữ ảnh trên web
+  File? _imageFile;
+  Uint8List? _webImage;
 
-  // Hàm để chọn ảnh từ local
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       final bytes = await pickedFile.readAsBytes();
       setState(() {
-        // Nếu đang chạy trên web, lưu trữ ảnh dưới dạng Uint8List
         if (kIsWeb) {
           _webImage = bytes;
-          _questionImg.text = pickedFile.name; // Tên file trên web
-        } 
-        // Nếu không phải web, lưu trữ ảnh dưới dạng File
-        else {
+          _questionImg.text = pickedFile.name;
+        } else {
           _imageFile = File(pickedFile.path);
           _questionImg.text = pickedFile.path;
         }
@@ -51,52 +46,40 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
     }
   }
 
-
   @override
   void initState() {
     super.initState();
     final q = widget.question;
-    // Khởi tạo 4 option mặc định
 
     if (q != null) {
-      _questionId.text = q.questionId!;                 // Có thể null
-      _questionImg.text = q.questionImg!;               // Có thể null
-      _contentController.text = q.questionText;         // Không thể null
-      _maxTimeController.text = q.maxTime.toString();   // Không thể null
-      selectedLevel = q.questionLevel;                  // Không thể null
-      selectedAnswerIndex = q.correctAnswerIndex;       // Không thể null
-      options =                                         // Danh sách, không thể null
-          q.options
-              .map(
-                (opt) => Options(
-                  optionText: opt.optionText,
-                  optionIndex: opt.optionIndex,
-                ),
-              )
-              .toList();
+      _questionId.text = q.questionId ?? '';
+      _questionImg.text = q.questionImg ?? '';
+      _contentController.text = q.questionText;
+      _maxTimeController.text = q.maxTime.toString();
+      selectedLevel = q.questionLevel;
+      selectedAnswerIndex = q.correctAnswerIndex;
+      options = q.options
+          .map(
+            (opt) => Options(
+              optionText: opt.optionText,
+              optionIndex: opt.optionIndex,
+            ),
+          )
+          .toList();
     } else {
-      options = List.generate(
-        4,
-        (index) => Options(optionText: '', optionIndex: index),
-      );
+      options = List.generate(4, (index) => Options(optionText: '', optionIndex: index));
     }
   }
 
   void goBack() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => AdminCrudScreen()),
-    );
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AdminCrudScreen()));
   }
 
   void submit(bool isEdit) async {
-    final bool submit;
     if (_formKey.currentState!.validate() && selectedAnswerIndex != null) {
-      final TestQuestion questionData = TestQuestion(
-        // questionId: isEdit ? _questionId : null,
+      final questionData = TestQuestion(
         questionId: _questionId.text,
         questionLevel: selectedLevel,
-        // questionImg: isEdit? _questionImg : null,
         questionImg: _questionImg.text,
         questionText: _contentController.text,
         maxTime: int.parse(_maxTimeController.text),
@@ -104,10 +87,21 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
         correctAnswerIndex: selectedAnswerIndex ?? 0,
       );
 
-      if (isEdit != true) {
-        submit = await QuestionService().addQuestion(questionData,imageFile: _imageFile,webImageBytes: _webImage,webImageName: _questionImg.text,);
+      bool submit;
+      if (!isEdit) {
+        submit = await QuestionService().addQuestion(
+          questionData,
+          imageFile: _imageFile,
+          webImageBytes: _webImage,
+          webImageName: _questionImg.text,
+        );
       } else {
-        submit = await QuestionService().editQuestion(questionData,imageFile: _imageFile,webImageBytes: _webImage,webImageName: _questionImg.text,);
+        submit = await QuestionService().editQuestion(
+          questionData,
+          imageFile: _imageFile,
+          webImageBytes: _webImage,
+          webImageName: _questionImg.text,
+        );
       }
 
       if (submit) {
@@ -118,21 +112,17 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
 
       showDialog(
         context: context,
-        barrierDismissible: false, // Prevent user from closing it manually
+        barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
             title: const Text('Done!'),
-            content: Text(
-              isEdit
-                  ? 'Question edited successfully'
-                  : 'Question added successfully',
-            ),
+            content: Text(isEdit ? 'Question edited successfully' : 'Question added successfully'),
           );
         },
       );
 
       Future.delayed(const Duration(seconds: 2), () {
-        Navigator.of(context).pop(); // Close the dialog
+        Navigator.of(context).pop();
         goBack();
       });
     }
@@ -142,141 +132,195 @@ class _QuestionFormWidgetState extends State<QuestionFormWidget> {
   Widget build(BuildContext context) {
     final isEdit = widget.question != null;
 
+    final primaryColor = Colors.deepPurple;
+    final borderRadius = BorderRadius.circular(12);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.deepPurple),
-          onPressed: () => goBack(),
+          icon: Icon(Icons.arrow_back_ios_new, color: primaryColor),
+          onPressed: goBack,
         ),
+        title: Text(
+          isEdit ? 'EDIT QUESTION FORM' : 'ADD QUESTION FORM',
+          style: TextStyle(color: primaryColor, fontSize: 30, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
-                controller: _questionId,
-                decoration: const InputDecoration(
-                  labelText: 'Question ID (optional)',
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _contentController,
-                decoration: const InputDecoration(
-                  labelText: 'Question Content',
-                ),
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField(
+              _buildTextField(_questionId, 'Question ID (optional)', false, isReadOnly: isEdit, color: isEdit ? Colors.grey : null),
+              const SizedBox(height: 16),
+              _buildTextField(_contentController, 'Question Content', true, isMultiline: true),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
                 value: selectedLevel,
-                items:
-                    ['easy', 'medium', 'hard']
-                        .map(
-                          (level) => DropdownMenuItem(
-                            value: level,
-                            child: Text(level),
-                          ),
-                        )
-                        .toList(),
+                decoration: _inputDecoration('Level'),
+                items: ['easy', 'medium', 'hard']
+                    .map((level) => DropdownMenuItem(value: level, child: Text(level.capitalize())))
+                    .toList(),
                 onChanged: (value) {
                   setState(() {
                     selectedLevel = value!;
                   });
                 },
-                decoration: const InputDecoration(labelText: 'Level'),
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.image),
-                    label: const Text("Pick Image"),
-                    onPressed: _pickImage,
-                  ),
-                  const SizedBox(width: 10),
-                  if (kIsWeb && _webImage != null)
-                    SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: Image.memory(_webImage!),
-                    )
-                  else if (!kIsWeb && _imageFile != null)
-                    SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: Image.file(_imageFile!),
-                    )
-                  else if (_questionImg.text.isNotEmpty)
-                    SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: Image.network(_questionImg.text),
-                    ),
-                ],
-              ),
-
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _maxTimeController,
-                decoration: const InputDecoration(
-                  labelText: 'Max Time (seconds)',
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  shape: RoundedRectangleBorder(borderRadius: borderRadius),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  elevation: 3,
                 ),
-                keyboardType: TextInputType.number,
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty ? 'Required' : null,
+                icon: const Icon(Icons.image_outlined, color: Color.fromARGB(255, 255, 225, 246)),
+                label: const Text('Pick Image', style: TextStyle(color: Color.fromARGB(255, 255, 225, 246))),
+                onPressed: _pickImage,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
+
+              if (kIsWeb && _webImage != null)
+                _buildImagePreviewBig(Image.memory(_webImage!), borderRadius, context)
+              else if (!kIsWeb && _imageFile != null)
+                _buildImagePreviewBig(Image.file(_imageFile!), borderRadius, context)
+              else if (_questionImg.text.isNotEmpty)
+                _buildImagePreviewBig(Image.network(_questionImg.text, fit: BoxFit.cover), borderRadius, context),
+
+              const SizedBox(height: 16),
+              _buildTextField(_maxTimeController, 'Max Time (seconds)', true, isNumber: true),
+              const SizedBox(height: 24),
               const Text(
                 'Options:',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
+              const SizedBox(height: 12),
               ...options.asMap().entries.map((entry) {
-                final index = entry.key;
-                return Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        initialValue: options[index].optionText,
-                        decoration: InputDecoration(
-                          labelText: 'Option ${index + 1}',
+                final idx = entry.key;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          initialValue: options[idx].optionText,
+                          decoration: InputDecoration(
+                            labelText: 'Option ${idx + 1}',
+                            border: OutlineInputBorder(borderRadius: borderRadius),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                          ),
+                          onChanged: (text) => options[idx].optionText = text,
                         ),
-                        onChanged: (text) {
-                          options[index].optionText = text;
-                        },
                       ),
-                    ),
-                    Radio<int>(
-                      value: index,
-                      groupValue: selectedAnswerIndex,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedAnswerIndex = value;
-                        });
-                      },
-                    ),
-                    const Text("Correct"),
-                  ],
+                      const SizedBox(width: 12),
+                      Column(
+                        children: [
+                          Radio<int>(
+                            value: idx,
+                            groupValue: selectedAnswerIndex,
+                            activeColor: primaryColor,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedAnswerIndex = value;
+                              });
+                            },
+                          ),
+                          const Text("Correct", style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    ],
+                  ),
                 );
               }),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  submit(isEdit);
-                },
-                child: Text(isEdit ? 'Update' : 'Add'),
+              const SizedBox(height: 30),
+              SizedBox(
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    shape: RoundedRectangleBorder(borderRadius: borderRadius),
+                    elevation: 5,
+                  ),
+                  onPressed: () => submit(isEdit),
+                  child: Text(isEdit ? 'Update' : 'Add', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.normal, color: Color.fromARGB(255, 255, 225, 246))),
+                ),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, bool required,
+      {bool isNumber = false, bool isMultiline = false, bool isReadOnly = false, Color? color}) {
+    return TextFormField(
+      controller: controller,
+      readOnly: isReadOnly,
+      keyboardType: isMultiline
+          ? TextInputType.multiline
+          : (isNumber ? TextInputType.number : TextInputType.text),
+      minLines: isMultiline ? 1 : 1,    // start with 3 lines tall for multiline
+      maxLines: isMultiline ? null : 1, // grow vertically if multiline
+      style: TextStyle(color: color),
+      validator: (value) => (required && (value == null || value.isEmpty)) ? 'Required' : null,
+      decoration: _inputDecoration(label),
+    );
+  }
+
+  // Hàm dùng để tạo decoration cho TextFormField
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.deepPurple.shade400, width: 2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+    );
+  }
+
+  // Hàm dùng để coi trước hình ảnh trước khi push qua backend
+  Widget _buildImagePreviewBig(Widget imageWidget, BorderRadius borderRadius, BuildContext context) {
+    final width = MediaQuery.of(context).size.width * 0.8;
+    return Center(
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: Container(
+          width: width,
+          height: width * 0.6,  // Tỉ lệ 16:9
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.deepPurple.withOpacity(0.2),
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              width: width,
+              height: width * 0.6,
+              child: imageWidget,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+extension StringCasingExtension on String {
+  String capitalize() {
+    if (isEmpty) return this;
+    return this[0].toUpperCase() + substring(1);
   }
 }
