@@ -110,14 +110,14 @@ Future<bool> addQuestion(TestQuestion question, {File? imageFile,Uint8List? webI
       print("Uploading Web image: $webImageName");
       request.files.add(http.MultipartFile.fromBytes('image',webImageBytes,filename: webImageName,));
     }
-    print("Request fields: ${request.fields}");
-    print("Request files: ${request.files}");
+    // print("Request fields: ${request.fields}");
+    // print("Request files: ${request.files}");
     // Send the request
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
 
-    print('PUT Response: ${response.statusCode}');
-    print('Body: ${response.body}');
+    // print('PUT Response: ${response.statusCode}');
+    // print('Body: ${response.body}');
 
     return response.statusCode == 200 || response.statusCode == 201;
   }
