@@ -270,9 +270,9 @@ class _LoginPageState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                      SocialIcon(icon: FontAwesomeIcons.instagram),
+                      // SocialIcon(icon: FontAwesomeIcons.instagram),
                       SizedBox(width: 16),
-                      SocialIcon(icon: FontAwesomeIcons.facebookF),
+                      // SocialIcon(icon: FontAwesomeIcons.facebookF),
                     ],
                   ),
                 ],

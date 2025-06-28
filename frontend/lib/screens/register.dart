@@ -170,14 +170,14 @@ class _RegisterPageState extends State<RegisterScreen> {
                   ),
 
                   const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      SocialIcon(icon: FontAwesomeIcons.instagram),
-                      SizedBox(width: 11),
-                      SocialIcon(icon: FontAwesomeIcons.facebookF),
-                    ],
-                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: const [
+                  //     SocialIcon(icon: FontAwesomeIcons.instagram),
+                  //     SizedBox(width: 11),
+                  //     SocialIcon(icon: FontAwesomeIcons.facebookF),
+                  //   ],
+                  // ),
                 ],
               ),
             ),
